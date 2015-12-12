@@ -1,0 +1,729 @@
+---
+title:  HOWTO &#124; armhf.com &#124; Ubuntu and Wheezy Images for ARMhf Devices
+---
+
+{% include head.html %}
+<div id="wrapper" class="clearfix">
+<div id="content-full" class="grid col-940">
+		<!-- Blog page title -->
+		
+		<div class="breadcrumb-list" xmlns:v="http://rdf.data-vocabulary.org/#"><span class="breadcrumb" typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/">Home</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb-current">HOWTO</span></div>
+			
+								<div id="post-718" class="post-718 post type-post status-publish format-standard sticky hentry category-beaglebone-black category-device-tree category-howto tag-uart-serial-tty01-tty02-tty04-tty05">
+					
+					
+	<h2 class="entry-title post-title"><a href="/beaglebone-black-serial-uart-device-tree-overlays-for-ubuntu-and-debian-wheezy-tty01-tty02-tty04-tty05-dtbo-files/" rel="bookmark">BeagleBone Black Serial UART Device Tree Overlays for Ubuntu and Debian Wheezy (tty01, tty02, tty04, tty05 .dtbo files)</a></h2>
+
+<div class="post-meta">
+	<span class="meta-prep meta-prep-author posted">Posted on </span><a href="/beaglebone-black-serial-uart-device-tree-overlays-for-ubuntu-and-debian-wheezy-tty01-tty02-tty04-tty05-dtbo-files/" title="BeagleBone Black Serial UART Device Tree Overlays for Ubuntu and Debian Wheezy (tty01, tty02, tty04, tty05 .dtbo files)" rel="bookmark"><time class="timestamp updated" datetime="2013-06-17T16:01:14+00:00">June 17, 2013</time></a><span class="byline"> by </span><span class="author vcard"><a class="url fn n" href="/author/johnc/" title="View all posts by John Clark">John Clark</a></span>
+			<span class="comments-link">
+		<span class="mdash">&mdash;</span>
+			<a href="/beaglebone-black-serial-uart-device-tree-overlays-for-ubuntu-and-debian-wheezy-tty01-tty02-tty04-tty05-dtbo-files/#comments"><span class="dsq-postid" data-dsqidentifier="718 http://www.armhf.com/?p=718">69 Comments &darr;</span></a>		</span>
+	</div><!-- end of .post-meta -->
+
+					<div class="post-entry">
+												<h5>BeagleBone Black UARTs</h5>
+<p>Unlike the BeagleBone White, the BeagleBone Black has no built-in serial to USB connection. This was one of the several cost saving measures taken in order to get the per-unit price down to $45 USD. The serial debug interface available at J1 is setup to allow the use of an <a href="http://www.ftdichip.com/Support/Documents/DataSheets/Cables/DS_TTL-232R_CABLES.pdf" onclick="_gaq.push(['_trackEvent','download','http://www.ftdichip.com/Support/Documents/DataSheets/Cables/DS_TTL-232R_CABLES.pdf']);" target="_blank">FTDI TTL-232R-3V3 3.3V serial to USB adapter</a> (Figure 1). An <a href="http://www.amazon.com/gp/product/B004LBXO2A" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'http://www.amazon.com/gp/product/B004LBXO2A', 'FTDI 3.3V knock-off']);" target="_blank">FTDI 3.3V knock-off</a> is available from Amazon, and works well for this application. The unit cost is $19 with free Prime shipping. Using the UARTs from another BeagleBone Black would have served the same purpose for only ~$20 more (Figure 2). Also note that, depending on the use case, the BeagleBone Black can also monitor its own serial debug port via one of the other UART ports.</p>
+<p><img alt="FTDI TTL-232R-3V3" src="/wp-content/uploads/2013/06/ftdi_serial_debug.jpg" width="600" height="399" /></p>
+<p>Figure 1 – BeagleBone Black with an FTDI TTL-232R-3V3 3.3V serial to USB attached to J1</p>
+<p>&nbsp;</p>
+<h5>Device Tree Overlay</h5>
+<p>The BeagleBone Black <code>am335x-boneblack.dtb</code> device file has only <code>/dev/ttyO0</code> active by default. To enable the other UARTs, we could either modify this file or create an overlay (.dtbo) file to adjust this behavior at runtime. I opted to go with the .dtbo overlay approach. The compiled files and their proper application are noted in the section below.</p>
+<p>Figure 2 shows the connection between the board doing the monitoring (top) using UART4, RX pin P9-11 and TX pin P9-13. It is connected to the board being monitored (bottom) via its UART0 serial debug port at J1. Note that J1 has six pins, but only three are active: pin 1: ground, RX pin 4 and TX pin 5. In this case the TX is tied to RX and vice-versa (TX:P9-13 to RX:J1-4 and RX:P9-11 to TX:J1-5).</p>
+<p><img alt="BeagleBone Serial Debug" src="/wp-content/uploads/2013/06/bbb_serial_debug.jpg" width="600" height="464" /></p>
+<p>Figure 2 – BeagleBone Black serial J1 attached to BeagleBone Black ttyO4</p>
+<p>Install and start minicom (<code>apt-get install minicom)</code> and launch it in setup mode (<code>minicom -s)</code>. Select <code>Serial port setup</code> and change the <code>Serial Device</code> to <code>/dev/ttyO4</code> (or whatever port you are using). Note that <code>Hardware Flow Control</code> is on by default and should be turned off.</p>
+<p>That&#8217;s it. You should now be seeing the login screen of the other BeagleBone Black:</p>
+<pre style="background: #000000;"><code><strong style="background-color: #000000; color: #00ff00;">Welcome to minicom 2.5
+
+OPTIONS: I18n 
+Compiled on Dec  7 2011, 12:04:29.
+Port /dev/ttyO4
+
+Press CTRL-A Z for help on special keys                      
+
+Ubuntu 12.04.2 LTS ubuntu-armhf ttyO0                        
+
+ubuntu-armhf login: 
+</strong></code></pre>
+<p>&nbsp;</p>
+<h5>Serial UART Device Tree Overlay Files</h5>
+<p>The most difficult part was figuring out how to build the device tree overlay files. To build the overlay, use the unmodified device tree compiler available in the Ubuntu packages (<code>apt-get install device-tree-compiler)</code>. Googling around, many examples are Ångström based that use /plugin/ and had a command-line option -@ that Ubuntu stock device tree compiler does support.  By decompiling an existing overlay file it is not too difficult to see how the parameters are defined within the file.  Below are overlay files for the various serial ports of the BeagleBone Black.</p>
+
+<p>Copy the following .dtbo overlay files to the <code>/lib/firmware</code> directory and apply them after each boot with the command: <code>echo ttyO1_armhf.com &gt; /sys/devices/bone_capemgr*/slots</code></p>
+<ul>
+<li><a style="font-size: 13px; line-height: 19px;" href="http://s3.armhf.com/boards/bbb/dt/ttyO1_armhf.com-00A0.dtbo" target="_blank">ttyO1_armhf.com-00A0.dtbo</a></li>
+<li><a style="font-size: 13px; line-height: 19px;" href="http://s3.armhf.com/boards/bbb/dt/ttyO2_armhf.com-00A0.dtbo" target="_blank">ttyO2_armhf.com-00A0.dtbo</a></li>
+<li><a style="font-size: 13px; line-height: 19px;" href="http://s3.armhf.com/boards/bbb/dt/ttyO4_armhf.com-00A0.dtbo" target="_blank">ttyO4_armhf.com-00A0.dtbo</a></li>
+<li><a style="font-size: 13px; line-height: 19px;" href="http://s3.armhf.com/boards/bbb/dt/ttyO5_armhf.com-00A0.dtbo" target="_blank">ttyO5_armhf.com-00A0.dtbo</a></li>
+</ul>
+<p>Note 1: ttyO3 does not have an RX pinout (it is tied to the TDA19988 HDMI chip)<br />
+Note 2: ttyO5 shares pins with the HDMI overlay – both cannot be active at the same time<br />
+Note 3: ttyO0 is available on J1 and does not require an overlay</p>
+<p>After applying all four of the .dtbo files, you should see something like:</p>
+<pre style="background: #000000;"><code><strong style="background-color: #000000; color: #00ff00;">root@ubuntu-armhf:/# ll /dev/ttyO*
+crw-rw---- 1 root tty     249, 0 Jan  1  2000 /dev/ttyO0
+crw-rw---- 1 root dialout 249, 1 Jun 17 18:16 /dev/ttyO1
+crw-rw---- 1 root dialout 249, 2 Jun 17 18:16 /dev/ttyO2
+crw-rw---- 1 root dialout 249, 4 Jun 17 18:16 /dev/ttyO4
+crw-rw---- 1 root dialout 249, 5 Jun 17 18:16 /dev/ttyO5
+root@ubuntu-armhf:/# 
+</strong></code></pre>
+<p>&nbsp;</p>
+<h5>Serial UART Address and Configuration</h5>
+<p>Below are the notes from cross-referencing the <a href="https://github.com/CircuitCo/BeagleBone-Black/blob/master/BBB_SRM.pdf?raw=true" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'https://github.com/CircuitCo/BeagleBone-Black/blob/master/BBB_SRM.pdf?raw=true', 'BeagleBone Black System Reference Manual']);" target="_blank">BeagleBone Black System Reference Manual</a>, the <a href="http://www.ti.com/lit/ds/sprs717f/sprs717f.pdf" onclick="_gaq.push(['_trackEvent','download','http://www.ti.com/lit/ds/sprs717f/sprs717f.pdf']);" target="_blank">TI AM335x Datasheet</a>, and the <a href="http://www.ti.com/lit/ug/spruh73i/spruh73i.pdf" onclick="_gaq.push(['_trackEvent','download','http://www.ti.com/lit/ug/spruh73i/spruh73i.pdf']);" target="_blank">TI AM335x Technical Reference Manual</a>. Take some time to review these manuals for yourself – several websites are out there with inaccurate information and transcription errors, so it pays to double-check. It is always more frustrating and challenging when multiple issues exist in code; this is one easy thing to get right. Also, don&#8217;t forget to examine the kernel log <code>dmesg</code> after trying to load an overlay file – many times the kernel will tell you exactly what is wrong.</p>
+<pre><code><strong>
+UART0: 0x44E0_9000 (/dev/ttyO0)</strong>
+   TX: 0x174 0x00 (j1-p5)  (ZCZ-E16 UART0_TXD mode:0 [datasheet]) = (conf_uart0_txd 974h [TRM p1126] = 0x0174)
+   RX: 0x170 0x20 (j1-p4)  (ZCZ-E15 UART0_RXD mode:0 [datasheet]) = (conf_uart0_rxd 970h [TRM p1126] = 0x0170)
+
+<strong>UART1: 0x4802_2000 (/dev/ttyO1)</strong>
+   TX: 0x184 0x00  (p9-24) (ZCZ-D15 UART1_TXD mode:0 [datasheet]) = (conf_uart1_txd 984h [TRM p1126] = 0x0184)
+   RX: 0x180 0x20  (p9-26) (ZCZ-D16 UART1_RXD mode:0 [datasheet]) = (conf_uart1_rxd 980h [TRM p1126] = 0x0180)
+
+<strong>UART2: 0x4802_4000 (/dev/ttyO2)</strong>
+   TX: 0x154 0x01  (p9-21) (ZCZ-B17 SPI0_D0   mode:1 [datasheet]) = (conf_spi0_d0   954h [TRM p1126] = 0x0154)
+   RX: 0x150 0x21  (p9-22) (ZCZ-A17 SPI0_SCLK mode:1 [datasheet]) = (conf_spi0_sclk 950h [TRM p1126] = 0x0150)
+
+<strong>UART3: 0x481A_6000 (/dev/ttyO3)</strong>
+   TX: 0x164 0x01  (p9-42)       (ZCZ-C18 ECAP0_IN_PWM0_OUT mode:1 [datasheet]) = (conf_ecap0_in_pwm0_out 964h [TRM p1126] = 0x0164)
+   RX: 0x188 0x21  (no breakout) (ZCZ-C17 I2C0_SDA          mode:1 [datasheet]) = (conf_i2c0_sda          988h [TRM p1126] = 0x0188) I2C0_SDA is tied to TDA19988
+
+<strong>UART4: 0x481A_8000 (/dev/ttyO4)</strong>
+   TX: 0x074 0x06  (p9-13) (ZCZ-U17 GPMC_WPn   mode:6 [datasheet]) = (conf_gpmc_wpn   874h [TRM p1124] = 0x0074)
+   RX: 0x070 0x26  (p9-11) (ZCZ-T17 GPMC_WAIT0 mode:6 [datasheet]) = (conf_gpmc_wait0 870h [TRM p1124] = 0x0070)
+
+<strong>UART5: 0x481A_A000 (/dev/ttyO5)</strong>
+   TX: 0x0C0 0x04  (p8-37) (ZCZ-U1 LCD_DATA8 mode:4 [datasheet]) = (conf_lcd_data8 8C0h [TRM p1125] = 0x00C0)
+   RX: 0x0C4 0x24  (p8-38) (ZCZ-U2 LCD_DATA9 mode:4 [datasheet]) = (conf_lcd_data9 8C4h [TRM p1125] = 0x00C4)
+</code></pre>
+											</div>
+					<!-- end of .post-entry -->
+
+	<div class="post-data">
+		Posted in <a href="/category/beaglebone-black/">BeagleBone Black</a>, <a href="/category/device-tree/">Device Tree</a>, <a href="/category/howto/">HowTo</a>		Tagged with: <a href="/tag/uart-serial-tty01-tty02-tty04-tty05/" rel="tag">uart serial tty01 tty02 tty04 tty05</a><br />	</div><!-- end of .post-data -->
+
+<div class="post-edit"></div>
+									</div><!-- end of #post-718 -->
+			
+								<div id="post-605" class="post-605 post type-post status-publish format-standard sticky hentry category-beaglebone-black category-howto">
+					
+	<h2 class="entry-title post-title"><a href="/using-beaglebone-black-gpios/" rel="bookmark">Using BeagleBone Black GPIOs</a></h2>
+
+<div class="post-meta">
+	<span class="meta-prep meta-prep-author posted">Posted on </span><a href="/using-beaglebone-black-gpios/" title="Using BeagleBone Black GPIOs" rel="bookmark"><time class="timestamp updated" datetime="2013-05-26T14:14:12+00:00">May 26, 2013</time></a><span class="byline"> by </span><span class="author vcard"><a class="url fn n" href="/author/johnc/" title="View all posts by John Clark">John Clark</a></span>
+			<span class="comments-link">
+		<span class="mdash">&mdash;</span>
+			<a href="/using-beaglebone-black-gpios/#comments"><span class="dsq-postid" data-dsqidentifier="605 http://www.armhf.com/?p=605">50 Comments &darr;</span></a>		</span>
+	</div><!-- end of .post-meta -->
+
+					<div class="post-entry">
+												<p>To control digital input / outputs for the BeagleBone Black, you can use the facilities exposed by the kernel in the <code>/sys/class/gpio</code> directory. Note that the BeagleBone White pinouts are different from the BeagleBone Black. Also note that the GPIOs available on the BBW have changed between revisions, so be certain to get the proper technical reference manual for your actual board revision.</p>
+<p>After boot, nothing is exported for use, but we do see the four GPIO controllers (<code>gpio0</code>, <code>gpio1</code>, <code>gpio2</code>, and <code>gpio3</code>):</p>
+<pre><code># ls -al /sys/class/gpio
+total 0
+drwxr-xr-x  2 root root    0 May 26 15:40 .
+drwxr-xr-x 45 root root    0 Jan  1  2000 ..
+--w-------  1 root root 4096 May 26 15:48 export
+lrwxrwxrwx  1 root root    0 May 26 15:45 gpiochip0 -&gt; ../../devices/virtual/gpio/gpiochip0
+lrwxrwxrwx  1 root root    0 May 26 15:45 gpiochip32 -&gt; ../../devices/virtual/gpio/gpiochip32
+lrwxrwxrwx  1 root root    0 May 26 15:45 gpiochip64 -&gt; ../../devices/virtual/gpio/gpiochip64
+lrwxrwxrwx  1 root root    0 May 26 15:45 gpiochip96 -&gt; ../../devices/virtual/gpio/gpiochip96
+--w-------  1 root root 4096 May 26 15:45 unexport
+</code></pre>
+<p>Note that each GPIO controller is offset by 32 from the previous (0, 32, 64, 96) &#8212; more on this later.</p>
+<p>Not all GPIO pins are available by default. A lot of frustration may come from not knowing this &#8212; sometimes when it appears that all should be working, it does not. The microcontroller needs to be reconfigured to enable some of the pin modes. To understand what may be available, you need to study table 10 on page 70 for the P8 header and table 11 on page 72 for the P9 header in the <a href="https://github.com/CircuitCo/BeagleBone-Black/blob/master/BBB_SRM.pdf?raw=true" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'https://github.com/CircuitCo/BeagleBone-Black/blob/master/BBB_SRM.pdf?raw=true', 'BeagleBone Black System Reference Manual']);" target="_blank">BeagleBone Black System Reference Manual</a>. Pay close attention to which header is P8 and which is P9 (page 68) because they feel backwards to me.</p>
+<p>In this example, I will export P9 header GPIO pins 12, 14, 15, 16. Referencing page 72 mode 7 column, it shows pin 12 to be <code>gpio1[28]</code>, pin 14 to be <code>gpio1[18]</code>, pin 15 to be <code>gpio1[16]</code>, pin 16 to be <code>gpio1[19]</code>. All of these pins are on the <code>gpio1</code> controller (<code>gpiochip32</code>). To get to the GPIO number that should be exported from the kernel, we must add on 32 to each GPIO (64 for <code>gpio2</code>, and 96 for <code>gpio3</code>). Therefore <code>gpio1[28]</code> = 32 + 28 = 60. I will just do all the math here and we will refer to them by the kernel nomenclature and stop with the <code>gpio1[x]</code> business as it gets confusing.</p>
+<pre><code>pin 12 --&gt; gpio60
+pin 14 --&gt; gpio50
+pin 15 --&gt; gpio48
+pin 16 --&gt; gpio51
+</code></pre>
+<p>Now that we have a relationship between the P9 header physical pins and what the kernel is calling them, we can begin configuration. To make this example easy to follow, I am just going to use bash scripts, but all of the same principles apply to the file manipulation APIs in your favorite language.</p>
+<p>In this example, we will be configuring all four pins to be digital outputs. To do so, we need to copy the gpio number we want to export into the kernel gpiolib <code>/sys/class/gpio/export</code> file.</p>
+<pre><code>echo 48 &gt; /sys/class/gpio/export
+echo 50 &gt; /sys/class/gpio/export
+echo 51 &gt; /sys/class/gpio/export
+echo 60 &gt; /sys/class/gpio/export
+</code></pre>
+<p>Afterward we can see there are four new subdirectories for each of the gpios:</p>
+<pre><code># ls -al /sys/class/gpio
+total 0
+drwxr-xr-x 2 root root    0 May 26 15:40 ./
+drwxr-xr-x 45 root root   0 Jan  1  2000 ../
+--w------- 1 root root 4096 May 26 16:25 export
+lrwxrwxrwx 1 root root    0 May 26 16:25 gpio48 -&gt; ../../devices/virtual/gpio/gpio48/
+lrwxrwxrwx 1 root root    0 May 26 16:25 gpio50 -&gt; ../../devices/virtual/gpio/gpio50/
+lrwxrwxrwx 1 root root    0 May 26 16:25 gpio51 -&gt; ../../devices/virtual/gpio/gpio51/
+lrwxrwxrwx 1 root root    0 May 26 16:25 gpio60 -&gt; ../../devices/virtual/gpio/gpio60/
+lrwxrwxrwx 1 root root    0 May 26 15:45 gpiochip0 -&gt; ../../devices/virtual/gpio/gpiochip0/
+lrwxrwxrwx 1 root root    0 May 26 15:45 gpiochip32 -&gt; ../../devices/virtual/gpio/gpiochip32/
+lrwxrwxrwx 1 root root    0 May 26 15:45 gpiochip64 -&gt; ../../devices/virtual/gpio/gpiochip64/
+lrwxrwxrwx 1 root root    0 May 26 15:45 gpiochip96 -&gt; ../../devices/virtual/gpio/gpiochip96/
+--w------- 1 root root 4096 May 26 15:45 unexport
+</code></pre>
+<p>And the contents of one of the gpio subdirectories:</p>
+<pre><code># ls -alH /sys/class/gpio/gpio48
+total 0
+drwxr-xr-x  3 root root    0 May 26 16:25 .
+drwxr-xr-x 10 root root    0 May 26 15:45 ..
+-rw-r--r--  1 root root 4096 May 26 16:29 active_low
+-rw-r--r--  1 root root 4096 May 26 16:29 direction
+-rw-r--r--  1 root root 4096 May 26 16:29 edge
+drwxr-xr-x  2 root root    0 May 26 16:29 power
+lrwxrwxrwx  1 root root    0 May 26 16:25 subsystem -&gt; ../../../../class/gpio
+-rw-r--r--  1 root root 4096 May 26 16:25 uevent
+-rw-r--r--  1 root root 4096 May 26 16:29 value
+</code></pre>
+<p>There are several configuration options available to each gpio. I suggest you read the <a href="https://www.kernel.org/doc/Documentation/gpio/gpio.txt" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'https://www.kernel.org/doc/Documentation/gpio/gpio.txt', 'Linux GPIO Interfaces manual']);" target="_blank">Linux GPIO Interfaces manual</a> for all of the details. I am only covering the basics here, and the <a href="https://www.kernel.org/doc/Documentation/gpio/gpio.txt" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'https://www.kernel.org/doc/Documentation/gpio/gpio.txt', 'Linux GPIO Interfaces manual']);" target="_blank">Linux GPIO Interfaces manual</a> is a very important read to understanding Linux gpio control.</p>
+<p>Next we must specify if the exported gpio is input or output. It does not make sense to configure anything else ahead of this and as far as I know, the kernel doesn&#8217;t let you do anything else with it until you set the gpio as input or output.</p>
+<p>To set a gpio as output, we set its <code>direction</code> as <code>in</code> or <code>out</code>. For outputs there is an alternative nomenclature where output direction can be set instead as <code>high</code> or <code>low</code> to help with glitch free operation. I&#8217;ll use this nomenclature:</p>
+<pre><code>echo high &gt; /sys/class/gpio/gpio48/direction
+echo high &gt; /sys/class/gpio/gpio50/direction
+echo high &gt; /sys/class/gpio/gpio51/direction
+echo high &gt; /sys/class/gpio/gpio60/direction
+</code></pre>
+<p>Pins 12, 14, 15, 16 are now configured as outputs and are currently high &#8212; these pins will now be reading 3.3v. <span style="text-decoration: underline;">Do not use 5v TTL logic parts or you will damage the board.</span></p>
+<p>Finally, we will set the pins low which will depower them:</p>
+<pre><code>echo 0 &gt; /sys/class/gpio/gpio48/value
+echo 0 &gt; /sys/class/gpio/gpio50/value
+echo 0 &gt; /sys/class/gpio/gpio51/value
+echo 0 &gt; /sys/class/gpio/gpio60/value
+</code></pre>
+<p>Putting this all together, this script will configure and run a binary counter that will overflow and start at zero again. It is kind of cool to watch if you hook relays up to the board.</p>
+<pre><code>#!/bin/bash -e
+
+if [ ! -d /sys/class/gpio/gpio48 ]; then echo 48 &gt; /sys/class/gpio/export; fi
+if [ ! -d /sys/class/gpio/gpio50 ]; then echo 50 &gt; /sys/class/gpio/export; fi
+if [ ! -d /sys/class/gpio/gpio51 ]; then echo 51 &gt; /sys/class/gpio/export; fi
+if [ ! -d /sys/class/gpio/gpio60 ]; then echo 60 &gt; /sys/class/gpio/export; fi
+
+echo low &gt; /sys/class/gpio/gpio48/direction
+echo low &gt; /sys/class/gpio/gpio50/direction
+echo low &gt; /sys/class/gpio/gpio51/direction
+echo low &gt; /sys/class/gpio/gpio60/direction
+
+for (( i=0 ; ; ++i ))
+do
+   if (( i &gt; 0x0f )); then
+      i=0
+      printf '\n[press  + c to stop]\n\n'
+   fi
+
+   bit0=$(( (i &amp; 0x01) &gt; 0 ))
+   bit1=$(( (i &amp; 0x02) &gt; 0 ))
+   bit2=$(( (i &amp; 0x04) &gt; 0 ))
+   bit3=$(( (i &amp; 0x08) &gt; 0 ))
+   echo $bit3 $bit2 $bit1 $bit0
+
+   echo $bit0 &gt; /sys/class/gpio/gpio60/value
+   echo $bit1 &gt; /sys/class/gpio/gpio50/value
+   echo $bit2 &gt; /sys/class/gpio/gpio48/value
+   echo $bit3 &gt; /sys/class/gpio/gpio51/value
+
+   sleep .2
+done
+</code></pre>
+<p>&nbsp;</p>
+<h5>The Script in Action</h5>
+<p> <iframe src="http://www.youtube.com/embed/OGYHBOmyvMc" height="315" width="560" allowfullscreen="" frameborder="0"></iframe></p>
+											</div>
+					<!-- end of .post-entry -->
+
+	<div class="post-data">
+		Posted in <a href="/category/beaglebone-black/">BeagleBone Black</a>, <a href="/category/howto/">HowTo</a>			</div><!-- end of .post-data -->
+
+<div class="post-edit"></div>
+									</div><!-- end of #post-605 -->
+			
+								<div id="post-513" class="post-513 post type-post status-publish format-standard sticky hentry category-beaglebone-black category-emmc category-howto category-partitioning">
+					
+	<h2 class="entry-title post-title"><a href="/expanding-linux-partitions-part-2-of-2/" rel="bookmark">Expanding Linux Partitions: Part 2 of 2</a></h2>
+
+<div class="post-meta">
+	<span class="meta-prep meta-prep-author posted">Posted on </span><a href="/expanding-linux-partitions-part-2-of-2/" title="Expanding Linux Partitions: Part 2 of 2" rel="bookmark"><time class="timestamp updated" datetime="2013-05-11T12:48:26+00:00">May 11, 2013</time></a><span class="byline"> by </span><span class="author vcard"><a class="url fn n" href="/author/johnc/" title="View all posts by John Clark">John Clark</a></span>
+			<span class="comments-link">
+		<span class="mdash">&mdash;</span>
+			<a href="/expanding-linux-partitions-part-2-of-2/#comments"><span class="dsq-postid" data-dsqidentifier="513 http://www.armhf.com/?p=513">18 Comments &darr;</span></a>		</span>
+	</div><!-- end of .post-meta -->
+
+					<div class="post-entry">
+												<p>As shown in <a href="/expanding-linux-partitions-part-1-of-2/" target="_blank">Part 1</a> of this article, extracting Linux from a pre-made .img file can result in unused space at the end of the uSD card. Depending on the size of the uSD card, this could leave a significant amount of space left unused. This article shows how to repartition the uSD card to utilize all of the space on the uSD card. This can be done on an unmounted filesystem or even on a live filesystem. In the example below, the live filesystem of a BeagelBone Black (running the Debian Wheezy image) will be resized to take advantage of the full 4GB of space available on the uSD card used in this example.</p>
+<h4>Step 1: Start <code>fdisk</code></h4>
+<hr />
+<p>To get started, list the volumes available on a BeagleBone Black that is booted from a uSD card:</p>
+<pre><code>root@debian-armhf:/# ls -l /dev/mmcblk*
+<span style="color: #ff0000;">brw-rw---T 1 root floppy 179, 0  Jan 1 2000 /dev/mmcblk0
+brw-rw---T 1 root floppy 179, 1  Jan 1 2000 /dev/mmcblk0p1
+brw-rw---T 1 root floppy 179, 2  Jan 1 2000 /dev/mmcblk0p2</span>
+brw-rw---T 1 root floppy 179, 8  Jan 1 2000 /dev/mmcblk1
+brw-rw---T 1 root floppy 179, 16 Jan 1 2000 /dev/mmcblk1boot0
+brw-rw---T 1 root floppy 179, 24 Jan 1 2000 /dev/mmcblk1boot1
+brw-rw---T 1 root floppy 179, 9  Jan 1 2000 /dev/mmcblk1p1
+brw-rw---T 1 root floppy 179, 10 Jan 1 2000 /dev/mmcblk1p2
+</code></pre>
+<p>The listing above shows an external uSD card is currently booted as indicated by the <code>/dev/mmcblk0</code> entries and the lack of <code>/dev/mmcblk0boot</code> entries. When booted from the internal eMMC, the device with the <code>/dev/mmcblk1boot</code> entries would instead be at the device zero location as shown here:</p>
+<pre><code>root@debian-armhf:/# ls -l /dev/mmcblk*
+<span style="color: #ff0000;">brw-rw---T 1 root floppy 179, 0  Jan 1 2000 /dev/mmcblk0
+brw-rw---T 1 root floppy 179, 1  Jan 1 2000 /dev/mmcblk0p1
+brw-rw---T 1 root floppy 179, 16 Jan 1 2000 /dev/<strong>mmcblk0boot0</strong>
+brw-rw---T 1 root floppy 179, 24 Jan 1 2000 /dev/<strong>mmcblk0boot1</strong>
+brw-rw---T 1 root floppy 179, 2  Jan 1 2000 /dev/mmcblk0p2</span>
+brw-rw---T 1 root floppy 179, 8  Jan 1 2000 /dev/mmcblk1
+brw-rw---T 1 root floppy 179, 9  Jan 1 2000 /dev/mmcblk1p1
+brw-rw---T 1 root floppy 179, 10 Jan 1 2000 /dev/mmcblk1p2
+</code></pre>
+<p>To get started, run <code>fdisk /dev/mmcblk0</code> to examine the partitioning of the external uSD card that is currently booted:</p>
+<pre><code>root@debian-armhf:/# fdisk /dev/mmcblk0
+
+Command (m for help): p
+
+Disk /dev/mmcblk0: 3947 MB, <span style="color: #ff0000;">3947888640 bytes</span>
+4 heads, 16 sectors/track, 120480 cylinders, total <span style="color: #ff0000;">7710720 sectors</span>
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): <span style="color: #ff0000;">512 bytes</span> / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x80000000
+
+        Device Boot      Start         End      Blocks   Id  System
+/dev/mmcblk0p1   *        2048        4095        1024    1  FAT12
+/dev/mmcblk0p2            4096     3751935     1873920   83  Linux
+
+Command (m for help): 
+</code></pre>
+<p>Take a moment to examine what <code>fdisk</code> is reporting. The first line indicates that the uSD card is <code>3947888640 bytes</code> in size. The 4th line reports the sector size to be <code>512 bytes</code>. Some quick math shows that <code>3947888640 bytes / 512 bytes per sector = 7710720 sectors</code> as is also reported on the second line. The default &#8220;block&#8221; size is 1024 bytes, but it does not actually report this unit anywhere. The <code>Start</code> and <code>End</code> columns are reporting 512 byte sectors, and the <code>Blocks</code> column is reporting 1024 byte blocks. The way this .img is partitioned makes the relationship easy to see in this case, but it would not be immediately apparent if this were a large hard disk and the numbers were not as magic. The starting block of the partition table at position 2048 reveals that blocks 0-2047 are not being used for user data. This amounts to a full megabyte (<code>2048 * 512 bytes per block = 1048576 bytes</code>), and this is the default of <code>fdisk</code>. The first partition is 2048 sectors in size, or 1024K, which confirms the block size being 1K.</p>
+<p>To calculate the total size of the space used on the disk,  there are 2048 sectors at the head reserved for partitioning, 2048 sectors in mmcblk0p1, and 3,751,936 sectors in mmcblk0p2 for a total of 3,756,032 sectors. With each sector using 512 bytes, this totals 1,923,088,384 bytes. The choice of 1,923,088,384 bytes was used to make this image the exact size of the BeagleBone&#8217;s available eMMC space (note that 1,923,088,384 bytes / 1024^2 = 1834 MB). It is also a good size because not all external 2 GB uSD cards are exactly 2048 * 1024^2 in size. Having it a bit under 2 GB makes it a sure fit.</p>
+<p>Repartitioning the disk is rather easy since <code>fdisk</code> will prompt with smart default choices. The steps below will begin by deleting partition 2, then recreate it as a larger size, and finally <strong>write the new table to the disk only at the end</strong>. Notice the emphasis on the last part: No changes are actually committed to disk along the way &#8212; only by pressing &#8216;w&#8217; at the end will cause changes to be written. If you make a mistake or panic, just hit &#8216;q&#8217; to quit and no changes will have been made.</p>
+<p>&nbsp;</p>
+<h4>Step 2: Delete Partition 2</h4>
+<hr />
+<p>Press &#8216;d&#8217; for delete and &#8216;2&#8217; for partition 2.</p>
+<pre><code>Command (m for help): p
+
+Disk /dev/mmcblk0: 3947 MB, 3947888640 bytes
+4 heads, 16 sectors/track, 120480 cylinders, total 7710720 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x80000000
+
+        Device Boot      Start         End      Blocks   Id  System
+/dev/mmcblk0p1   *        2048        4095        1024    1  FAT12
+/dev/mmcblk0p2            4096     3751935     1873920   83  Linux
+
+<span style="color: #ff0000;"><strong>Command (m for help): d
+Partition number (1-4): 2</strong></span>
+
+Command (m for help): p
+
+Disk /dev/mmcblk0: 3947 MB, 3947888640 bytes
+4 heads, 16 sectors/track, 120480 cylinders, total 7710720 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x80000000
+
+        Device Boot      Start         End      Blocks   Id  System
+/dev/mmcblk0p1   *        2048        4095        1024    1  FAT12
+
+Command (m for help): 
+</code></pre>
+<p>&nbsp;</p>
+<h4>Step 3: Recreate Partition 2</h4>
+<hr />
+<p>Press &#8216;n&#8217; for new, &#8216;p&#8217; for primary, and &#8216;2&#8217; for partition 2. Specify start and end sectors for the new partition &#8212; just select the default values by pressing enter. In fact, outside of the the first &#8216;n&#8217; they were all default choices and pressing enter alone to confirm the choice is all that is needed.</p>
+<pre><code><span style="color: #ff0000;"><strong>Command (m for help): n</strong></span>
+Partition type:
+   p   primary (1 primary, 0 extended, 3 free)
+   e   extended
+<span style="color: #ff0000;"><strong>Select (default p): p</strong>
+<strong>Partition number (1-4, default 2): 2
+First sector (4096-7710719, default 4096): 
+Using default value 4096</strong></span>
+Last sector, +sectors or +size{K,M,G} (4096-7710719, default 7710719): 
+<span style="color: #ff0000;"><strong>Using default value 7710719</strong></span>
+
+Command (m for help): p
+
+Disk /dev/mmcblk0: 3947 MB, 3947888640 bytes
+4 heads, 16 sectors/track, 120480 cylinders, total 7710720 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x80000000
+
+        Device Boot      Start         End      Blocks   Id  System
+/dev/mmcblk0p1   *        2048        4095        1024    1  FAT12
+/dev/mmcblk0p2            4096     7710719     3853312   83  Linux
+
+Command (m for help): 
+</code></pre>
+<p>That is it!  Select &#8216;w&#8217; to commit the changes to the uSD card.  Notice that the partition table in this example was &#8220;busy&#8221; so a reboot was needed to cause the changes to be reflected.  Even if it were not busy, it seems like it could be a good idea to reboot at this point if you want to be extra safe.</p>
+<pre><code><span style="color: #ff0000;"><strong>Command (m for help): w</strong></span>
+
+The partition table has been altered!
+
+Calling ioctl() to re-read partition table.
+
+WARNING: Re-reading the partition table failed with error 16: Device or resource busy.
+The kernel still uses the old table. The new table will be used at
+the next reboot or after you run partprobe(8) or kpartx(8)
+Syncing disks.
+root@debian-armhf:/# reboot
+</code></pre>
+<p>&nbsp;</p>
+<h4>Step 4: Expand the Filesystem</h4>
+<hr />
+<p>This is the last step. Now that the second partition is larger, expand the filesystem to match the larger partition using <code>resize2fs</code>.</p>
+<pre><code>
+root@debian-armhf:/# df
+Filesystem     1K-blocks   Used Available Use% Mounted on
+<span style="color: #ff0000;"><strong>rootfs           1811704 740184    977824  44% /</strong></span>
+/dev/root        1811704 740184    977824  44% /
+devtmpfs          253920      0    253920   0% /dev
+tmpfs              50816    216     50600   1% /run
+tmpfs               5120      0      5120   0% /run/lock
+tmpfs             101620      0    101620   0% /run/shm
+/dev/mmcblk0p1      1004    474       530  48% /boot/uboot
+root@debian-armhf:/# 
+
+root@debian-armhf:/# <span style="color: #ff0000;"><strong>resize2fs /dev/mmcblk0p2</strong> </span>
+resize2fs 1.42.5 (29-Jul-2012)
+Filesystem at /dev/mmcblk0p2 is mounted on /; on-line resizing required
+old_desc_blocks = 1, new_desc_blocks = 1
+The filesystem on /dev/mmcblk0p2 is now 963328 blocks long.
+
+root@debian-armhf:/# df
+Filesystem     1K-blocks   Used Available Use% Mounted on
+<span style="color: #ff0000;"><strong>rootfs           3761680 741096   2851404  21% /</strong></span>
+/dev/root        3761680 741096   2851404  21% /
+devtmpfs          253920      0    253920   0% /dev
+tmpfs              50816    216     50600   1% /run
+tmpfs               5120      0      5120   0% /run/lock
+tmpfs             101620      0    101620   0% /run/shm
+/dev/mmcblk0p1      1004    474       530  48% /boot/uboot
+root@debian-armhf:/# 
+</code></pre>
+<p>&nbsp;</p>
+<h4>Summary</h4>
+<hr />
+<p>All of the space on the uSD card is now available for use. To recap:</p>
+<pre><code># fdisk /dev/mmcblk0
+d
+2
+n
+p
+2
+4096
+
+w
+
+# resize2fs /dev/mmcblk0p2
+</code></pre>
+
+<p><a href="/expanding-linux-partitions-part-1-of-2/" target="_blank">Part 1</a></p>
+											</div>
+					<!-- end of .post-entry -->
+
+	<div class="post-data">
+		Posted in <a href="/category/beaglebone-black/">BeagleBone Black</a>, <a href="/category/emmc/">eMMC</a>, <a href="/category/howto/">HowTo</a>, <a href="/category/partitioning/">Partitioning</a>			</div><!-- end of .post-data -->
+
+<div class="post-edit"></div>
+									</div><!-- end of #post-513 -->
+			
+								<div id="post-430" class="post-430 post type-post status-publish format-standard hentry category-beaglebone-black category-emmc category-howto">
+					
+					
+	<h2 class="entry-title post-title"><a href="/beaglebone-black-ga-angstrom-image/" rel="bookmark">BeagleBone Black GA Angstrom Image</a></h2>
+
+<div class="post-meta">
+	<span class="meta-prep meta-prep-author posted">Posted on </span><a href="/beaglebone-black-ga-angstrom-image/" title="BeagleBone Black GA Angstrom Image" rel="bookmark"><time class="timestamp updated" datetime="2013-04-30T11:16:21+00:00">April 30, 2013</time></a><span class="byline"> by </span><span class="author vcard"><a class="url fn n" href="/author/johnc/" title="View all posts by John Clark">John Clark</a></span>
+			<span class="comments-link">
+		<span class="mdash">&mdash;</span>
+			<a href="/beaglebone-black-ga-angstrom-image/#comments"><span class="dsq-postid" data-dsqidentifier="430 http://www.armhf.com/?p=430">2 Comments &darr;</span></a>		</span>
+	</div><!-- end of .post-meta -->
+
+					<div class="post-entry">
+												<p>Before booting the BeagleBone Black for the first time, you may want to snap an image of the unbooted the Angstrom load from NVRAM in its virgin state for future reference.  To do this, we need a microSD card to boot the BeagleBone Black and snap the image.  The BeagleBone Black Ubuntu image available on the <a href="/download/" target="_blank">downloads page</a> will work nicely for this purpose.  Just cat the image using <a href="/getting-started-with-ubuntu-img-file/" target="_blank">these instructions</a>, then boot it from microSD by holding down the user button at power-on.  Once booted, <code>ssh</code> into the device, <code>sudo su</code> to root, and get started.<br />
+&nbsp;<br />
+If you need the original image you can find it located on the <a href="/downloads-old/" target="_blank">downloads page</a>.<br />
+&nbsp;<br />
+The internal NVRAM will be seen as the <code>/dev/mmcblk1</code> device.</p>
+<pre><code># ll /dev/mmcblk*
+brw-rw---- 1 root disk 179,  0 Apr 30 03:24 /dev/mmcblk0
+brw-rw---- 1 root disk 179,  1 Apr 30 03:24 /dev/mmcblk0p1
+brw-rw---- 1 root disk 179,  2 Apr 30 03:24 /dev/mmcblk0p2
+<strong><span style="color: #ff0000;">brw-rw---- 1 root disk 179,  8 Apr 30 03:24 /dev/mmcblk1</span></strong>
+brw-rw---- 1 root disk 179, 16 Apr 30 03:24 /dev/mmcblk1boot0
+brw-rw---- 1 root disk 179, 24 Apr 30 03:24 /dev/mmcblk1boot1
+<span style="color: #ff0000;">brw-rw---- 1 root disk 179,  9 Apr 30 03:24 /dev/mmcblk1p1
+brw-rw---- 1 root disk 179, 10 Apr 30 03:24 /dev/mmcblk1p2
+</span></code></pre>
+<p>Capture the image using the <code>dd</code> command.</p>
+<pre><code># dd bs=1M count=1832 if=/dev/mmcblk1 | xz -cz &gt; ./bbb_angstrom_ga.tar.xz</code></pre>
+<p>Now is a good time to go get a cup of coffee because this takes a while.<br />
+In the future if you need to restore the image, just do the reverse:</p>
+<pre><code># xz -cd ./bbb_angstrom_ga.tar.xz &gt; /dev/mmcblk1</code></pre>
+<p>&nbsp;</p>
+											</div>
+					<!-- end of .post-entry -->
+
+	<div class="post-data">
+		Posted in <a href="/category/beaglebone-black/">BeagleBone Black</a>, <a href="/category/emmc/">eMMC</a>, <a href="/category/howto/">HowTo</a>			</div><!-- end of .post-data -->
+
+<div class="post-edit"></div>
+									</div><!-- end of #post-430 -->
+			
+								<div id="post-418" class="post-418 post type-post status-publish format-standard hentry category-beaglebone-black category-emmc category-howto category-partitioning">
+					
+	<h2 class="entry-title post-title"><a href="/expanding-linux-partitions-part-1-of-2/" rel="bookmark">Expanding Linux Partitions: Part 1 of 2</a></h2>
+
+<div class="post-meta">
+	<span class="meta-prep meta-prep-author posted">Posted on </span><a href="/expanding-linux-partitions-part-1-of-2/" title="Expanding Linux Partitions: Part 1 of 2" rel="bookmark"><time class="timestamp updated" datetime="2013-04-29T23:25:49+00:00">April 29, 2013</time></a><span class="byline"> by </span><span class="author vcard"><a class="url fn n" href="/author/johnc/" title="View all posts by John Clark">John Clark</a></span>
+			<span class="comments-link">
+		<span class="mdash">&mdash;</span>
+			<a href="/expanding-linux-partitions-part-1-of-2/#comments"><span class="dsq-postid" data-dsqidentifier="418 http://www.armhf.com/?p=418">2 Comments &darr;</span></a>		</span>
+	</div><!-- end of .post-meta -->
+
+					<div class="post-entry">
+												<p>When installing Linux by unpacking .tar files into empty boot and root file system partitions, you get to decide how the partitions will lay out. When extracting Linux from a raw image file, the partition table is already defined and may not fit your needs and likely does not utilize all space available on the microSD card. For example, the Ubuntu 12.10 .img file available for the BeagleBone Black is sized exactly at 1832MB so it is able to precisely fit into the BeagleBone Black&#8217;s internal eMMC storage.</p>
+<p>If you are extracting this image to a microSD card, you will likely have a significant amount of unused space available. With many inexpensive microSD cards sporting capacities of 4GB to 8GB (or more), the afore mentioned 1.8GB partition layout leaves us with some additional work to be done. Fortunately, it is not difficult to take advantage of all available space. I am going to review two different methods for achieving this goal.</p>
+<p>The first method may not be immediately obvious, but we can create an additional third partition and mount it into the filesystem at boot time. There are a few compelling reasons for selecting this method. If you are planning to install a graphical desktop you will want to create a swap partition and you should set aside space for this. Additionally, if you are intending to allow external sources to upload information via a web browser or FTP, it is possible to have a volume run out of space. Having a dedicated upload and logging <code>var</code> volume will prevent uploads or excessive logging from utilizing more than a predetermined amount of space. Similar benefits can be realized buy mounting the <code>home</code> directory this way as well.</p>
+<p>The second technique takes advantage of Linux&#8217;s ability to expand a partition in-place on a booted system so long as no data exists beyond the end of that partition. Afterward, the ext2, ext3, or ext4 filesystem can be expanded using <code>resize2fs</code> to use this new available space at the end of the volume.</p>
+<p>&nbsp;</p>
+<h3>Adding a Partition</h3>
+<p>In this case we are going to dump all extra space into a single <code>storage</code> volume where we can mount from <code>/etc/fstab</code> as desired. The example is generic enough to be adapted for specific use cases.</p>
+<p>&nbsp;</p>
+<h4>Step 1: Start <code>fdisk</code></h4>
+<hr />
+<pre><code># fdisk /dev/mmcblk0
+
+Command (m for help): p
+
+Disk /dev/mmcblk0: 15.7 GB, 15719727104 bytes
+4 heads, 16 sectors/track, 479728 cylinders, total 30702592 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0x00000000
+
+        Device Boot      Start         End      Blocks   Id  System
+/dev/mmcblk0p1   *          63       65598       32768    c  W95 FAT32 (LBA)
+/dev/mmcblk0p2           65599     3751935     1843168+  83  Linux
+
+Command (m for help): 
+</code></pre>
+<p>In this case notice that the prepackaged 1.8GB image has been expanded onto a 16GB microSD card (notice the <code>15.7 GB</code> at the top). To make a new <code>/dev/mmcblk0p3</code> parition we type &#8216;n&#8217; for new &#8216;p&#8217; for primary (the default), 3 for the 3rd partition (the default), select the default first sector (3751936 in my case) and the default value for the last sector to use all remaining space. Don&#8217;t worry about mistakes yet, &lt;ctrl&gt; + c or &#8216;q&#8217; for quit will exit the program leaving your microSD unchanged.</p>
+<pre><code>Command (m for help): n
+Partition type:
+   p   primary (2 primary, 0 extended, 2 free)
+   e   extended
+Select (default p): 
+Using default response p
+Partition number (1-4, default 3): 
+Using default value 3
+First sector (3751936-30702591, default 3751936): 
+Using default value 3751936
+Last sector, +sectors or +size{K,M,G} (3751936-30702591, default 30702591): 
+Using default value 30702591
+
+Command (m for help):
+</code></pre>
+<p>If you want to save space for a swap partition, use the +size notation for the end value. For example <code>+12G</code> for a 12GB partition. At this point it is wise to review your work before committing changes by using the &#8216;p&#8217; command to print the current configuration choices. When all looks correct, &#8216;w&#8217; will commit your changes to disk and exit.</p>
+<p>At this point we should be able to see the new partition as a device.</p>
+<pre><code># ls -l /dev/mmcblk0*
+brw-rw---- 1 root disk 179,  0 Apr 30 02:21 /dev/mmcblk0
+brw-rw---- 1 root disk 179,  1 Apr 28 23:47 /dev/mmcblk0p1
+brw-rw---- 1 root disk 179,  2 Apr 28 23:47 /dev/mmcblk0p2
+<span style="color: #ff0000;">brw-rw---- 1 root disk 179,  3 Apr 30 02:22 /dev/mmcblk0p3
+</span></code></pre>
+<p>We now have a partition ready for a filesystem.</p>
+<p>&nbsp;</p>
+<h4>Step 2: Format the Partition</h4>
+<hr />
+<p>To format as an ext4 volume, use <code>mkfs.ext4</code>. Likewise, to format as an ext3 volume, use <code>mkfs.ext3</code>. Note that the <code>-L</code> option sets the volume label and is optional.</p>
+<pre><code># mkfs.ext4 -L "storage" /dev/mmcblk0p3
+mke2fs 1.42.5 (29-Jul-2012)
+Discarding device blocks: done                            
+Filesystem label=storage
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+Stride=0 blocks, Stripe width=0 blocks
+843776 inodes, 3368832 blocks
+168441 blocks (5.00%) reserved for the super user
+First data block=0
+Maximum filesystem blocks=3451912192
+103 block groups
+32768 blocks per group, 32768 fragments per group
+8192 inodes per group
+Superblock backups stored on blocks: 
+	32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208
+
+Allocating group tables: done                            
+Writing inode tables: done                            
+Creating journal (32768 blocks): done
+Writing superblocks and filesystem accounting information: done   
+</code></pre>
+<p>&nbsp;</p>
+<h4>Step 3: Mount the Volume</h4>
+<hr />
+<p>The next step is to create a location in the filesystem to mount the new volume. Create a <code>/mnt/storage</code> directory for this purpose and mount the volume.</p>
+<pre><code># mkdir /mnt/storage
+# mount /dev/mmcblk0p3 /mnt/storage
+# df
+Filesystem     1K-blocks   Used Available Use% Mounted on
+/dev/mmcblk0p2   1781432 541188   1148088  33% /
+udev              252780      4    252776   1% /dev
+tmpfs             101648    248    101400   1% /run
+none                5120      0      5120   0% /run/lock
+none              254112      0    254112   0% /run/shm
+none              102400      0    102400   0% /run/user
+/dev/mmcblk0p1     32686   6134     26552  19% /boot/uboot
+<span style="color: #ff0000;">/dev/mmcblk0p3  13132408  32904  12425740   1% /mnt/storage
+</span></code></pre>
+<p>Place an entry in <code>/etc/fstab</code> auto-mount the new volume at boot time.</p>
+<pre><code>proc /proc proc defaults 0 0
+/dev/mmcblk0p2      /              auto   errors=remount-ro   0   1
+/dev/mmcblk0p1      /boot/uboot    auto   defaults            0   0
+<span style="color: #ff0000;">/dev/mmcblk0p3      /mnt/storage   auto   defaults            0   0
+</span></code></pre>
+<p>Each time the BeagleBone Black is booted, it will auto-mount the new volume.</p>
+<p>&nbsp;</p>
+<h4>Step 4: Additional Mount Points Using Bind Mounts</h4>
+<hr />
+<p>Having a heap of storage sitting off at <code>/mnt/storage</code> isn&#8217;t the most useful thing in the world. We want to have meaningful subdirectories of the filesystem using this store. For this we use bind mounts. This allows us to move the users&#8217; <code>/home</code> directory to the new storage partition. Notice we create a new empty <code>/home</code> directory for the one we move.</p>
+<pre><code># mv /home /mnt/storage
+# mkdir /home
+</code></pre>
+<p>Add the bind mount to <code>/etc/fstab</code>.</p>
+<pre><code>proc /proc proc defaults 0 0
+/dev/mmcblk0p2      /              auto   errors=remount-ro   0   1
+/dev/mmcblk0p1      /boot/uboot    auto   defaults            0   0
+/dev/mmcblk0p3      /mnt/storage   auto   defaults            0   0
+<span style="color: #ff0000;">/mnt/storage/home   /home          none   defaults,<strong>bind</strong>       0   0
+</span></code></pre>
+<p>To see the bind mounts specify the <code>-a</code> option for <code>df</code>.</p>
+<pre><code># df -a
+Filesystem        1K-blocks   Used Available Use% Mounted on
+/dev/mmcblk0p2      1781432 541108   1148168  33% /
+proc                      0      0         0    - /proc
+sysfs                     0      0         0    - /sys
+none                      0      0         0    - /sys/fs/fuse/connections
+none                      0      0         0    - /sys/kernel/debug
+none                      0      0         0    - /sys/kernel/security
+udev                 252780      4    252776   1% /dev
+devpts                    0      0         0    - /dev/pts
+tmpfs                101648    220    101428   1% /run
+none                   5120      0      5120   0% /run/lock
+none                 254112      0    254112   0% /run/shm
+none                 102400      0    102400   0% /run/user
+/dev/mmcblk0p1        32686   6134     26552  19% /boot/uboot
+/dev/mmcblk0p3      1969936   3032   1865172   1% /mnt/storage
+<span style="color: #ff0000;">/mnt/storage/home   1969936   3032   1865172   1% /home
+</span></code></pre>
+<p>This can be done for other directories such as <code>/tmp</code> and <code>/var</code> as well.</p>
+<p>In <a href="/expanding-linux-partitions-part-2-of-2/" target="_blank">Part 2</a> of this article, I show how to expand the existing <code>/dev/mmcblk0p2</code> volume in-place to achieve similar results.</p>
+											</div>
+					<!-- end of .post-entry -->
+
+	<div class="post-data">
+		Posted in <a href="/category/beaglebone-black/">BeagleBone Black</a>, <a href="/category/emmc/">eMMC</a>, <a href="/category/howto/">HowTo</a>, <a href="/category/partitioning/">Partitioning</a>			</div><!-- end of .post-data -->
+
+<div class="post-edit"></div>
+									</div><!-- end of #post-418 -->
+			
+								<div id="post-296" class="post-296 post type-post status-publish format-standard hentry category-beaglebone-black category-howto tag-node-debian-ubuntu">
+					
+	<h2 class="entry-title post-title"><a href="/node-js-for-the-beaglebone-black/" rel="bookmark">Node.js for the BeagleBone Black</a></h2>
+
+<div class="post-meta">
+	<span class="meta-prep meta-prep-author posted">Posted on </span><a href="/node-js-for-the-beaglebone-black/" title="Node.js for the BeagleBone Black" rel="bookmark"><time class="timestamp updated" datetime="2013-04-27T17:11:00+00:00">April 27, 2013</time></a><span class="byline"> by </span><span class="author vcard"><a class="url fn n" href="/author/johnc/" title="View all posts by John Clark">John Clark</a></span>
+			<span class="comments-link">
+		<span class="mdash">&mdash;</span>
+			<a href="/node-js-for-the-beaglebone-black/#comments"><span class="dsq-postid" data-dsqidentifier="296 http://www.armhf.com/?p=296">10 Comments &darr;</span></a>		</span>
+	</div><!-- end of .post-meta -->
+
+					<div class="post-entry">
+												<p><img class="size-full wp-image-298" alt="node.js" src="/wp-content/uploads/2013/04/nodejs-green.png" width="212" height="114" /></p>
+<p>To run node.js on the BeagleBone, it needs to be compiled from scratch or you can install a precompiled distribution available on the <a href="/downloads-old/" target="_blank">downloads page</a>. While it seems to be more common to cross-compile for the ARM, I find it easier to natively compile it on the BeagleBone, but it does take a bit longer.</p>
+<p>Note that I compile and install as root <code>sudo su</code>, so if you get any differing result, keep this in mind.</p>
+<p>&nbsp;</p>
+<h4>Step 1: Prerequisites</h4>
+<p>We will need a compiler to compile the node source. The build requires python for the configuration scripts and gcc for the actual code.</p>
+<pre style="padding-left: 30px;"><code># apt-get install python
+# apt-get install build-essential
+</code></pre>
+<p>&nbsp;</p>
+<h4>Step 2: Download Node Source</h4>
+<p>Download the latest source code from the node.js website. At the time of writing it is version 0.10.5 so adjust this to the desired version. We will unpack it in the current directory. Specify the <code>-C &lt;path&gt;</code> option to extract it elsewhere.</p>
+<pre style="padding-left: 30px;"><code># wget http://nodejs.org/dist/v0.10.5/node-v0.10.5.tar.gz
+# tar xzvf node-v0.10.5.tar.gz</code></pre>
+<p>&nbsp;</p>
+<h4>Step 3: Configure</h4>
+<p>At the time of this writing, there is a problem with the Google V8 Snapshot feature causing node to segmentation fault. Snapshotting helps node start faster and is not a big-deal feature; we will just compile without it.</p>
+<pre style="padding-left: 30px;"><code># cd node-v0.10.5
+# ./configure --without-snapshot</code></pre>
+<h5>Result:</h5>
+<pre style="padding-left: 30px;"><code>{ 'target_defaults': { 'cflags': [],
+                       'default_configuration': 'Release',
+                       'defines': [],
+                       'include_dirs': [],
+                       'libraries': []},
+  'variables': { 'arm_fpu': 'vfpv3',
+                 'arm_neon': 0,
+                 'armv7': 1,
+                 'clang': 0,
+                 'gcc_version': 47,
+                 'host_arch': 'arm',
+                 'node_install_npm': 'true',
+                 'node_prefix': '',
+                 'node_shared_cares': 'false',
+                 'node_shared_http_parser': 'false',
+                 'node_shared_libuv': 'false',
+                 'node_shared_openssl': 'false',
+                 'node_shared_v8': 'false',
+                 'node_shared_zlib': 'false',
+                 'node_tag': '',
+                 'node_unsafe_optimizations': 0,
+                 'node_use_dtrace': 'false',
+                 'node_use_etw': 'false',
+                 'node_use_openssl': 'true',
+                 'node_use_perfctr': 'false',
+                 'node_use_systemtap': 'false',
+                 'python': '/usr/bin/python',
+                 'target_arch': 'arm',
+                 'v8_enable_gdbjit': 0,
+                 'v8_no_strict_aliasing': 1,
+                 'v8_use_arm_eabi_hardfloat': 'true',
+                 <span style="color: #ff0000;">'v8_use_snapshot': 'false'</span>}}
+creating  ./config.gypi
+creating  ./config.mk</code></pre>
+<p>&nbsp;</p>
+<h4>Step 4: Compile</h4>
+<p>We are ready to compile. It is going to take about a half-hour to complete &#8212; go get a cup of coffee.</p>
+<pre style="padding-left: 30px;"><code># make</code></pre>
+<p>&nbsp;</p>
+<h4>Step 5: Verify</h4>
+<p>Now that the build has finished, we can verify that all looks well before we install it.</p>
+<pre style="padding-left: 30px;"><code># ./node -e 'console.log("het werkt!");'
+# ./node -v</code></pre>
+<p>&nbsp;</p>
+<h4>Step 6: Install</h4>
+<p>Now that all looks well, we are ready install it.</p>
+<pre style="padding-left: 30px;"><code># make install</code></pre>
+											</div>
+					<!-- end of .post-entry -->
+
+	<div class="post-data">
+		Posted in <a href="/category/beaglebone-black/">BeagleBone Black</a>, <a href="/category/howto/">HowTo</a>		Tagged with: <a href="/tag/node-debian-ubuntu/" rel="tag">node debian ubuntu</a><br />	</div><!-- end of .post-data -->
+
+<div class="post-edit"></div>
+									</div><!-- end of #post-296 -->
+			
+</div><!-- end of #content-blog -->
+</div><!-- end of #wrapper -->
+</div><!-- end of #container -->
+
+{% include foot.html %}
+

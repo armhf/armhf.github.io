@@ -1,0 +1,124 @@
+---
+title:  Wandboard &#124; armhf.com
+---
+
+{% include head.html %}
+<div id="wrapper" class="clearfix">
+<div id="content-full" class="grid col-940">
+		
+			<div class="breadcrumb-list" xmlns:v="http://rdf.data-vocabulary.org/#"><span class="breadcrumb" typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/">Home</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb" typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/boards/">Boards</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb-current">Wandboard</span></div>
+						<div id="post-872" class="post-872 page type-page status-publish hentry">
+				
+	<h1 class="entry-title post-title">Wandboard</h1>
+
+	<div class="post-meta">
+		<span class="meta-prep meta-prep-author posted">Posted on </span><a href="/boards/wandboard/" title="Wandboard" rel="bookmark"><time class="timestamp updated" datetime="2013-11-29T20:06:15+00:00">November 29, 2013</time></a><span class="byline"> by </span><span class="author vcard"><a class="url fn n" href="/author/johnc/" title="View all posts by John Clark">John Clark</a></span>
+					<span class="comments-link">
+		<span class="mdash">&mdash;</span>
+				<a href="/boards/wandboard/#comments"><span class="dsq-postid" data-dsqidentifier="872 http://www.armhf.com/?page_id=872">89 Comments &darr;</span></a>		</span>
+			</div><!-- end of .post-meta -->
+
+				<div class="post-entry">
+					<div class='content-column one_half'><p>&nbsp;</p>
+<h4>Images Available</h4>
+<ul>
+<li><a href="#trusty">Ubuntu Trusty 14.10</a></li>
+<li><a href="#precise">Ubuntu Precise 12.04.4 LTS</a></li>
+<li><a href="#wheezy">Debian Wheezy 7.5</a></li>
+<li><a href="/boards/wandboard/wand-sd-install/" target="_blank">Installation Instructions</a></li>
+</ul></div><br />
+<div class='content-column one_half'><img class="wp-image-945" alt="Wandboard" src="/wp-content/uploads/2013/12/wand.jpg" width="360" height="301" /></div></p>
+<h4><strong>The Wandboard</strong></h4>
+<hr />
+The <a href="http://www.wandboard.org/" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'http://www.wandboard.org/', 'Wandboard']);" target="_blank">Wandboard</a> is a Cortex-A9 ARM device sporting a single, dual, or quad core Freescale i.MX6 SoC. The design incorporates support for HDMI, gigabit ethernet, sound, SATA, WiFi, and Bluetooth (depending on the model). The platform is developed on a developed not-for-profit basis and is supported by engineers volunteering their time.  With <a href="http://www.em.avnet.com/en-us/design/drc/Pages/Wandboard-org-Ultra-low-cost-Platform-based-on-the-Freescale-i-MX6-Multimedia-Applications-Processor.aspx" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'http://www.em.avnet.com/en-us/design/drc/Pages/Wandboard-org-Ultra-low-cost-Platform-based-on-the-Freescale-i-MX6-Multimedia-Applications-Processor.aspx', 'actual street prices ~10% lower']);" target="_blank">actual street prices ~10% lower</a> than the <a href="http://www.wandboard.org/index.php/buy" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'http://www.wandboard.org/index.php/buy', 'suggested retail price']);" target="_blank">suggested retail price</a>, the Wandboard offers great value and performance.</p>
+<p>&nbsp;</p>
+<h4><strong>The Goal</strong></h4>
+<hr />
+<p><span>The goal of this site is to provide <em>easy to deploy</em> stock armhf embedded images that are very stable. The goal is <em>not</em> to provide the absolute latest kernels that may lack stability. This ease of deployment and stability enables the software engineer to focus on software development without the hassles of building operating systems and fussing with bleeding-edge kernel issues.</span></p>
+<p><a name="trusty"></a><br />
+<span> </span></p>
+<h4><strong>Ubuntu Trusty 14.04</strong></h4>
+<hr />
+<p>This image uses the <a href="http://cdimage.ubuntu.com/ubuntu-core/releases/14.04/release/" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'http://cdimage.ubuntu.com/ubuntu-core/releases/14.04/release/', 'Ubuntu 14.04']);" target="_blank">Ubuntu 14.04</a> core filesystem from Ubuntu with the minimal meta package applied. The kernel is compiled from the <a href="https://github.com/wandboard-org/linux" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'https://github.com/wandboard-org/linux', 'Wandboard fork']);" target="_blank">Wandboard fork</a> of the mainline Linux kernel git repository. The result is an easy-to-install and stable Linux image.</p>
+<p><strong>Binary Download</strong></p>
+<ul>
+<li><a href="http://s3.armhf.com/dist/wand/ubuntu-trusty-14.04-rootfs-3.10.17.1-wand-armhf.com.tar.xz">ubuntu-trusty-14.04-rootfs-3.10.17.1-wand-armhf.com.tar.xz</a> (June 3, 2014)<br />
+md5: 5ed346ebba924c85bd36209ae8875f33</li>
+<li><a href="http://s3.armhf.com/dist/wand/linux-headers-3.10.17.1-wand-armhf.com.tar.xz">linux-headers-3.10.17.1-wand-armhf.com.tar.xz</a> (June 3, 2014)<br />
+md5: 2304a383bd96cf00303b809bf24d4c91</li>
+<li><a href="http://s3.armhf.com/dist/wand/wand-uboot.tar.xz">wand-uboot.tar.xz</a> (June 3, 2014)<br />
+md5: 793bcbd2ed3b97af3c9d1f0170cfa8a9</li>
+<li><a href="/boards/wandboard/wand-sd-install/">installation instructions</a></li>
+</ul>
+<p><a name="precise"></a><br />
+<span> </span></p>
+<h4><strong>Ubuntu Precise 12.04.4 LTS</strong></h4>
+<hr />
+<p>This image uses the <a href="http://cdimage.ubuntu.com/ubuntu-core/releases/12.04/release/" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'http://cdimage.ubuntu.com/ubuntu-core/releases/12.04/release/', 'Ubuntu 12.04']);" target="_blank">Ubuntu 12.04</a> core filesystem from Ubuntu with the minimal meta package applied. The kernel is compiled from the <a href="https://github.com/wandboard-org/linux" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'https://github.com/wandboard-org/linux', 'Wandboard fork']);" target="_blank">Wandboard fork</a> of the mainline Linux kernel git repository. The result is an easy-to-install and stable Linux image.</p>
+<p><strong>Binary Download</strong></p>
+<ul>
+<li><a href="http://s3.armhf.com/dist/wand/ubuntu-precise-12.04.4-rootfs-3.10.17.1-wand-armhf.com.tar.xz">ubuntu-precise-12.04.4-rootfs-3.10.17.1-wand-armhf.com.tar.xz</a> (June 3, 2014)<br />
+md5: 2e1171f53fb9f3b6ed5b733ac9e79d4c</li>
+<li><a href="http://s3.armhf.com/dist/wand/linux-headers-3.10.17.1-wand-armhf.com.tar.xz">linux-headers-3.10.17.1-wand-armhf.com.tar.xz</a> (June 3, 2014)<br />
+md5: 2304a383bd96cf00303b809bf24d4c91</li>
+<li><a href="http://s3.armhf.com/dist/wand/wand-uboot.tar.xz">wand-uboot.tar.xz</a> (June 3, 2014)<br />
+md5: 793bcbd2ed3b97af3c9d1f0170cfa8a9</li>
+<li><a href="/boards/wandboard/wand-sd-install/">installation instructions</a></li>
+</ul>
+<p><a name="wheezy"></a><br />
+<span> </span></p>
+<h4><strong>Debian Wheezy 7.5</strong></h4>
+<hr />
+<p>This image is based on the Debian Wheezy 7.2 core filesystem from <a href="http://wiki.debian.org/InstallingDebianOn/TI/BeagleBone" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'http://wiki.debian.org/InstallingDebianOn/TI/BeagleBone', 'Live-Build']);" target="_blank">Live-Build</a>, with packages equivalent to the Ubuntu minimal meta package. The kernel is compiled from the <a href="https://github.com/wandboard-org/linux" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'https://github.com/wandboard-org/linux', 'Wandboard fork']);" target="_blank">Wandboard fork</a> of the mainline Linux kernel git repository. The result is an easy-to-install and stable Linux image.</p>
+<p><strong>Binary Download</strong></p>
+<ul>
+<li><a href="http://s3.armhf.com/dist/wand/debian-wheezy-7.5-rootfs-3.10.17.1-wand-armhf.com.tar.xz">debian-wheezy-7.5-rootfs-3.10.17.1-wand-armhf.com.tar.xz</a> (June 3, 2014)<br />
+md5: 10bc1acdb268440f1675eff5e8c44528</li>
+<li><a href="http://s3.armhf.com/dist/wand/linux-headers-3.10.17.1-wand-armhf.com.tar.xz">linux-headers-3.10.17.1-wand-armhf.com.tar.xz</a> (June 3, 2014)<br />
+md5: 2304a383bd96cf00303b809bf24d4c91</li>
+<li><a href="http://s3.armhf.com/dist/wand/wand-uboot.tar.xz">wand-uboot.tar.xz</a> (June 3, 2014)<br />
+md5: 793bcbd2ed3b97af3c9d1f0170cfa8a9</li>
+<li><a href="/boards/wandboard/wand-sd-install/">installation instructions</a></li>
+</ul>
+<p>&nbsp;</p>
+<p><span> </span></p>
+<h4><strong>Resources</strong></h4>
+<hr />
+<ul>
+<li><a href="http://wiki.wandboard.org/index.php/Main_Page" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'http://wiki.wandboard.org/index.php/Main_Page', 'Wandboard Wiki']);" target="_blank">Wandboard Wiki</a></li>
+<li><a href="https://github.com/wandboard-org/linux" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'https://github.com/wandboard-org/linux', 'Wandboard Github Fork']);" target="_blank">Wandboard Github Fork</a></li>
+<li><a href="http://wiki.wandboard.org/index.php/Getting_started_with_Yocto_on_Wandboard" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'http://wiki.wandboard.org/index.php/Getting_started_with_Yocto_on_Wandboard', 'Yocto Embedded']);" target="_blank">Yocto Embedded</a></li>
+<li><a href="http://archlinuxarm.org/platforms/armv7/freescale/wandboard" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'http://archlinuxarm.org/platforms/armv7/freescale/wandboard', 'Arch Linux']);" target="_blank">Arch Linux</a></li>
+</ul>
+<p>&nbsp;</p>
+<hr />
+<p style="font-size: .75em;">All software is provided “AS IS,” and any expressed or implied warranties, including, but not limited to, the implied warranties of merchantability and fitness for a particular or any purpose are hereby expressly disclaimed. Any and all liability for any damage or loss resulting from the failure, defect, malfunction, use, or misuse of any software product offered is hereby expressly disclaimed. If you have any doubt at all about this software or Linix, do not download this software.</p>
+<hr />
+									</div>
+				<!-- end of .post-entry -->
+
+<a class="anchor" id="comments"></a>
+							</div><!-- end of #post-872 -->
+
+<div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+        this.page.url = "http://www.armhf.com/boards/wandboard/";
+        this.page.identifier = "872 http://www.armhf.com/?page_id=872";
+    };
+    (function() {
+        var d = document, s = d.createElement('script');
+        s.src = '//armhf.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+		
+</div><!-- end of #content-full -->
+
+</div><!-- end of #wrapper -->
+</div><!-- end of #container -->
+
+{% include foot.html %}
+

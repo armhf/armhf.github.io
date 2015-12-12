@@ -1,0 +1,94 @@
+---
+title:  BeagleBone Black GA Angstrom Image &#124; armhf.com
+---
+
+{% include head.html %}
+<div id="wrapper" class="clearfix">
+<div id="content" class="grid col-620">
+
+	<div class="breadcrumb-list" xmlns:v="http://rdf.data-vocabulary.org/#"><span class="breadcrumb" typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/">Home</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb" typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/category/beaglebone-black/">BeagleBone Black</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb-current">BeagleBone Black GA Angstrom Image</span></div>
+	
+		
+						<div id="post-430" class="post-430 post type-post status-publish format-standard hentry category-beaglebone-black category-emmc category-howto">
+				
+				
+	<h1 class="entry-title post-title">BeagleBone Black GA Angstrom Image</h1>
+
+<div class="post-meta">
+	<span class="meta-prep meta-prep-author posted">Posted on </span><a href="/beaglebone-black-ga-angstrom-image/" title="BeagleBone Black GA Angstrom Image" rel="bookmark"><time class="timestamp updated" datetime="2013-04-30T11:16:21+00:00">April 30, 2013</time></a><span class="byline"> by </span><span class="author vcard"><a class="url fn n" href="/author/johnc/" title="View all posts by John Clark">John Clark</a></span>
+			<span class="comments-link">
+		<span class="mdash">&mdash;</span>
+			<a href="/beaglebone-black-ga-angstrom-image/#comments"><span class="dsq-postid" data-dsqidentifier="430 http://www.armhf.com/?p=430">2 Comments &darr;</span></a>		</span>
+	</div><!-- end of .post-meta -->
+
+				<div class="post-entry">
+					<p>Before booting the BeagleBone Black for the first time, you may want to snap an image of the unbooted the Angstrom load from NVRAM in its virgin state for future reference.  To do this, we need a microSD card to boot the BeagleBone Black and snap the image.  The BeagleBone Black Ubuntu image available on the <a href="/download/" target="_blank">downloads page</a> will work nicely for this purpose.  Just cat the image using <a href="/getting-started-with-ubuntu-img-file/" target="_blank">these instructions</a>, then boot it from microSD by holding down the user button at power-on.  Once booted, <code>ssh</code> into the device, <code>sudo su</code> to root, and get started.<br />
+&nbsp;<br />
+If you need the original image you can find it located on the <a href="/download/" target="_blank">downloads page</a>.<br />
+&nbsp;<br />
+The internal NVRAM will be seen as the <code>/dev/mmcblk1</code> device.</p>
+<pre><code># ll /dev/mmcblk*
+brw-rw---- 1 root disk 179,  0 Apr 30 03:24 /dev/mmcblk0
+brw-rw---- 1 root disk 179,  1 Apr 30 03:24 /dev/mmcblk0p1
+brw-rw---- 1 root disk 179,  2 Apr 30 03:24 /dev/mmcblk0p2
+<strong><span style="color: #ff0000;">brw-rw---- 1 root disk 179,  8 Apr 30 03:24 /dev/mmcblk1</span></strong>
+brw-rw---- 1 root disk 179, 16 Apr 30 03:24 /dev/mmcblk1boot0
+brw-rw---- 1 root disk 179, 24 Apr 30 03:24 /dev/mmcblk1boot1
+<span style="color: #ff0000;">brw-rw---- 1 root disk 179,  9 Apr 30 03:24 /dev/mmcblk1p1
+brw-rw---- 1 root disk 179, 10 Apr 30 03:24 /dev/mmcblk1p2
+</span></code></pre>
+<p>Capture the image using the <code>dd</code> command.</p>
+<pre><code># dd bs=1M count=1832 if=/dev/mmcblk1 | xz -cz &gt; ./bbb_angstrom_ga.tar.xz</code></pre>
+<p>Now is a good time to go get a cup of coffee because this takes a while.<br />
+In the future if you need to restore the image, just do the reverse:</p>
+<pre><code># xz -cd ./bbb_angstrom_ga.tar.xz &gt; /dev/mmcblk1</code></pre>
+<p>&nbsp;</p>
+									</div><!-- end of .post-entry -->
+
+				<div class="navigation">
+					<div class="previous">&#8249; <a href="/expanding-linux-partitions-part-1-of-2/" rel="prev">Expanding Linux Partitions: Part 1 of 2</a></div>
+					<div class="next"><a href="/expanding-linux-partitions-part-2-of-2/" rel="next">Expanding Linux Partitions: Part 2 of 2</a> &#8250;</div>
+				</div><!-- end of .navigation -->
+
+	<div class="post-data">
+		Posted in <a href="/category/beaglebone-black/">BeagleBone Black</a>, <a href="/category/emmc/">eMMC</a>, <a href="/category/howto/">HowTo</a>			</div><!-- end of .post-data -->
+
+<a class="anchor" id="comments"></a>
+							</div><!-- end of #post-430 -->
+
+<div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+        this.page.url = "http://www.armhf.com/beaglebone-black-ga-angstrom-image/";
+        this.page.identifier = "430 http://www.armhf.com/?p=430";
+    };
+    (function() {
+        var d = document, s = d.createElement('script');
+        s.src = '//armhf.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+		
+</div><!-- end of #content -->
+
+	<div id="widgets" class="grid col-300 fit">
+		
+					<div class="widget-wrapper">
+
+				<div class="widget-title"><h3>In Archive</h3></div>
+				<ul>
+						<li><a href='/2013/06/'>June 2013</a></li>
+	<li><a href='/2013/05/'>May 2013</a></li>
+	<li><a href='/2013/04/'>April 2013</a></li>
+				</ul>
+
+			</div><!-- end of .widget-wrapper -->
+		
+			</div><!-- end of #widgets -->
+</div><!-- end of #wrapper -->
+</div><!-- end of #container -->
+
+{% include foot.html %}
+

@@ -1,0 +1,54 @@
+---
+title:  Wandboard microSD Card Installation &#124; armhf.com
+---
+
+{% include head.html %}
+<div id="wrapper" class="clearfix">
+<div id="content-full" class="grid col-940">
+		
+			<div class="breadcrumb-list" xmlns:v="http://rdf.data-vocabulary.org/#"><span class="breadcrumb" typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/">Home</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb" typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/boards/">Boards</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb" typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/boards/wandboard/">Wandboard</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb-current">Wandboard microSD Card Installation</span></div>
+						<div id="post-1022" class="post-1022 page type-page status-publish hentry">
+				
+	<h1 class="entry-title post-title">Wandboard microSD Card Installation</h1>
+
+				<div class="post-entry">
+					<ol>
+<li>Insert the microSD Card into your computer and observe which device it registers as by typing <code>ls /dev/sd*</code>. If you are uncertain, remove the microSD Card and the entry should go away. Once you know which device your microSD Card is, follow the instructions below replacing <code>/dev/sdX</code> with the name of the microSD Card in your system.</li>
+<li>Begin partitioning the microSD Card by typing <code>fdisk /dev/sdX</code>
+<ol style="list-style-type: lower-alpha;">
+<li>Initialize a new partition table by selecting <b>o</b>, then verify the partition table is empty by selecting <b>p</b>.</li>
+<li>Create a new partition by selecting <b>n</b> for &#8216;new&#8217;, then <b>p</b> for &#8216;primary&#8217;, and <b>1</b> to specify the first partition. Press <b>enter</b> to accept the default first sector of 2048 then press <b>enter</b> again to select the default last sector.</li>
+<li>Commit the changes by selecting <b>w</b> to &#8216;write&#8217; the partition table and exit fdisk.</li>
+</ol>
+</li>
+<li>Format the partition as ext4 by typing <code>mkfs.ext4 /dev/sdX1</code></li>
+<li>Install u-boot to the microSD Card (select single, dual, or quad core as appropriate)
+<pre><code>wget http://s3.armhf.com/dist/wand/wand-uboot.tar.xz
+tar xJvf wand-uboot.tar.xz
+dd if=wand-uboot/wand-uboot-[solo|dual|quad].imx of=/dev/sdX bs=512 seek=2
+sync</code></pre>
+</li>
+<li>Install the desired root filesystem to the microSD Card (ubuntu trusty in this example)</li>
+<li>
+<pre><code>wget http://s3.armhf.com/dist/wand/ubuntu-trusty-14.04-rootfs-3.10.17.1-wand-armhf.com.tar.xz
+mkdir rootfs
+mount /dev/sdX1 rootfs
+tar xJvf ubuntu-trusty-14.04-rootfs-3.10.17.1-wand-armhf.com.tar.xz -C rootfs
+umount rootfs</code></pre>
+</li>
+<li>The microSD Card is now ready to boot. Install the microSD Card in the Wandboard module (not the carrier board) and boot. Note that for ubuntu installations, the login userid is <b>ubuntu</b> and the password is <b>ubuntu</b>. Likewise for debian installations, the login userid is <b>debian</b> and the password is <b>debian</b>.</li>
+</ol>
+<p><b>Tip:</b> The package cache has been flushed to reduce the size of the images. Run <code>apt-get update</code> after boot to update the package cache, then run <code>apt-get upgrade</code> to ensure the latest updates are installed.</p>
+									</div>
+				<!-- end of .post-entry -->
+
+<div class="post-edit"></div>
+							</div><!-- end of #post-1022 -->
+		
+</div><!-- end of #content-full -->
+
+</div><!-- end of #wrapper -->
+</div><!-- end of #container -->
+
+{% include foot.html %}
+

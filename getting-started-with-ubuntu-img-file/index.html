@@ -1,0 +1,268 @@
+    <!doctype html>
+    <!--[if !IE]>
+    <html class="no-js non-ie" lang="en-US"> <![endif]-->
+    <!--[if IE 7 ]>
+    <html class="no-js ie7" lang="en-US"> <![endif]-->
+    <!--[if IE 8 ]>
+    <html class="no-js ie8" lang="en-US"> <![endif]-->
+    <!--[if IE 9 ]>
+    <html class="no-js ie9" lang="en-US"> <![endif]-->
+    <!--[if gt IE 9]><!-->
+<html class="no-js" lang="en-US"> <!--<![endif]-->
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Getting Started with an Ubuntu or Debian .img.xz File &#124; armhf.com</title>
+        <link rel='stylesheet' id='responsive-style-css'  href='/css/style.css?ver=1.9.7.6' type='text/css' media='all' />
+        <link rel='stylesheet' id='responsive-media-queries-css'  href='/css/responsive.css?ver=1.9.7.6' type='text/css' media='all' />
+        <link rel='stylesheet' id='cpsh-shortcodes-css'  href='/css/shortcodes.css?ver=0.6.6' type='text/css' media='all' />
+<script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-40575180-1']);
+    _gaq.push(['_gat._forceSSL']);
+    _gaq.push(['_trackPageview']);
+
+    (function () {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = 'http://www.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+</script>
+<script type='text/javascript' src='/js/jquery.js?ver=1.11.3'></script>
+<script type='text/javascript' src='/js/jquery-migrate.min.js?ver=1.2.1'></script>
+<script type='text/javascript' src='/js/responsive-modernizr.min.js?ver=2.6.1'></script>
+<style type="text/css" id="custom-background-css">
+body.custom-background { background-color: #ffffff; background-image: url('/wp-content/uploads/2013/05/bg2.png'); background-repeat: repeat; background-position: top left; background-attachment: fixed; }
+</style>
+<!-- Custom CSS Styles -->
+<style type="text/css" media="screen">
+h1 {
+font-size: 2em;
+margin-bottom: .5em;
+margin-top: .5em;
+}
+
+h2 {
+font-size: 1.75em;
+margin-bottom: .45em;
+margin-top: .45em;
+}
+
+h3 {
+font-size: 1.5em;
+margin-bottom: .4em;
+margin-top: .4em;
+}
+
+h4 {
+font-size: 1.25em;
+margin-bottom: .35em;
+margin-top: .35em;
+}
+
+.featured-title {
+font-size: 3em;
+letter-spacing: -1px;
+margin: 0;
+padding-top: 1em;
+text-align: center;
+}
+
+.call-to-action a.button {
+font-size: 14px;
+padding: 10px 20px;
+}
+
+pre {
+background: #e0e0e4;
+border: 1px solid #dedee3;
+box-shadow: none;
+-moz-box-shadow: none;
+-webkit-box-shadow: none;
+padding: 5px;
+margin: .5em .5em 1em .5em;
+line-height: 1.3em;
+overflow: auto;
+font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+max-height: 600px;
+}
+
+pre code {
+padding: 0;
+}
+
+code {
+background: #e0e0e4;
+padding: 1px 5px 1px 5px;
+}
+
+b {
+font-size: 105%;
+}
+
+</style>
+    </head>
+
+<body class="page page-id-1096 page-parent page-child parent-pageid-78 page-template page-template-full-width-page page-template-full-width-page-php custom-background">
+
+<div id="container" class="hfeed">
+
+    <div class="skip-container cf">
+        <a class="skip-link screen-reader-text focusable" href="#content">&darr; Skip to Main Content</a>
+    </div><!-- .skip-container -->
+    <div id="header">
+        
+            <div id="logo">
+                <a href="/"><img src="/wp-content/uploads/2014/04/copy-logo.png" width="300" height="100" alt="armhf.com"/></a>
+            </div><!-- end of #logo -->
+
+                <div class="main-nav"><ul id="menu-main-menu" class="menu"><li id="menu-item-230" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-230"><a href="/">Home</a></li>
+<li id="menu-item-127" class="menu-item menu-item-type-post_type menu-item-object-page current-page-ancestor current-menu-ancestor current-menu-parent current-page-parent current_page_parent current_page_ancestor menu-item-has-children menu-item-127"><a href="/boards/">Boards</a>
+<ul class="sub-menu">
+    <li id="menu-item-129" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-129"><a href="/boards/beaglebone/">BeagleBone</a></li>
+    <li id="menu-item-239" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-239"><a href="/boards/beaglebone-black/">BeagleBone Black</a></li>
+    <li id="menu-item-1105" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-1105"><a href="/boards/odroid-xu/">ODROID-XU</a></li>
+    <li id="menu-item-941" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-941"><a href="/boards/wandboard/">Wandboard</a></li>
+</ul>
+</li>
+<li id="menu-item-323" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-323"><a href="/posts/">HOWTO</a></li>
+<li id="menu-item-130" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-130"><a href="/download/">Downloads</a></li>
+<li id="menu-item-147" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-147"><a href="/accessories/">Accessories</a></li>
+</ul></div>
+			 
+    </div><!-- end of #header -->
+        
+	    <div id="wrapper" class="clearfix">
+				
+<div id="content" class="grid col-620">
+		        
+        <div class="breadcrumb-list" xmlns:v="http://rdf.data-vocabulary.org/#"><span typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/">Home</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb-current">Getting Started with an Ubuntu or Debian .img.xz File</span></div>        
+						<div id="post-245" class="post-245 page type-page status-publish hentry">       
+                
+<h1 class="entry-title post-title">Getting Started with an Ubuntu or Debian .img.xz File</h1>
+               
+<div class="post-meta">
+<span class="meta-prep meta-prep-author posted">Posted on </span><a href="/getting-started-with-ubuntu-img-file/" title="4:54 pm" rel="bookmark"><span class="timestamp updated">April 26, 2013</span></a><span class="byline"> by </span><span class="author vcard"><a class="url fn n" href="/author/johnc/" title="View all posts by John Clark">John Clark</a></span>
+			<span class="comments-link">
+		<span class="mdash">&mdash;</span>
+	<a href="/getting-started-with-ubuntu-img-file/#comments" title="Comment on Getting Started with an Ubuntu or Debian .img.xz File"><span class="dsq-postid" rel="245 http://www.armhf.com/?page_id=245">63 Comments &darr;</span></a>		</span>
+	 
+</div><!-- end of .post-meta -->
+                 
+                <div class="post-entry">
+                    <p><strong>These instructions assume you have downloaded the most recent prepackaged <a title="Downloads" href="/downloads-old/" target="_blank">BeagleBone Black image</a>. All instructions are executed as full root <code>sudo su</code></strong></p>
+<p style="padding-left: 30px;"><strong>A note about permissions and <code>sudo</code>:</strong><br />
+The instructions presented here assume full root <code>sudo su</code> permissions and not <code>sudo &lt;command&gt;</code> permissions alone.<br />
+Why does it matter? A command like <code>sudo xz -cd ./ubuntu-13.04-armhf-minfs-*.img.xz &gt; /dev/sdX</code> is actually two commands. First, xz is executed to perform a decompression operation and emit the byte stream to stdout. Second, the shell takes the byte stream and writes it to the specified device. Using the <code>sudo</code> command will only elevate the first xz command to root, which we don&#8217;t actually need, and leave the <code>/dev/sdX</code> stdout redirection to be performed by your unelevated shell (the part we do need root permissions to do). The operation will fail with a permission denied error. Elevating the shell to root via <code>sudo su</code> allows this command to succeed.<br />
+An alternative is to use the <code>tee</code> command and elevate it with sudo like so: <code>xz -cd ./ubuntu-13.04-armhf-minfs-*.img.xz | sudo tee /dev/sdX &gt; /dev/null</code></p>
+<p>&nbsp;</p>
+<p>Once you have downloaded an Ubuntu or Debian .img.xz file, write it to a microSD card.</p>
+<p>LZMA compression (7z aka xz) is used throughout this site. Many of the downloads available here are 100MB or more in size, so differences in compression algorithms add up quickly.</p>
+<p>Install xz if you do not already have it.</p>
+<pre><code># apt-get install xz-utils</code></pre>
+<p>This example decompresses the image and writes it to the <span style="color: #ff0000;">sdb</span> device.  Also note these instructions apply equally to mmc block devices such as <code>/dev/mmcblk0</code> if you are booted to a device with an SD card. Please be careful as writing this image to the wrong device will corrupt the device.  Run an <code>ls /dev/sd*</code> command before and after inserting the microSD card so you can be 100% certain which device is your microSD.  It is recommended that you download <a href="https://www.virtualbox.org/" target="_blank">VirtualBox</a> and do this procedure using an Ubuntu VM to make the process easier.</p>
+<p style="padding-left: 30px;">NOTE: If you are using an x86 Ubuntu distribution to write the microSD, the device will be seen as /dev/sdX.  If you are following along booted from the BeagleBone, the device will be /dev/mmcblk1 instead.</p>
+<pre><code># xz -cd ./ubuntu-13.10-armhf-minfs-*.img.xz &gt; <span style="color: #ff0000;">/dev/sdX</span></code></pre>
+<p><span style="color: #333399;"><span style="color: #333333; font-size: 13px; line-height: 19px;">After the file has finished decompressing and copying to the microSD card, we&#8217;ll need to reload the partition table.</span></span></p>
+<pre><code># partprobe /dev/sdX</code></pre>
+<p><span>Note that if you don&#8217;t have <code>partprobe</code> installed the above command will fail.  You can either <code>apt-get install parted</code> or just remove and reinstall the microSD card at this point.</span></p>
+<p>Confirm that two partitions now exist on the target microSD card.</p>
+<pre><code># ls -al /dev/sdb*
+brw-rw---- 1 root disk 179, 0 Apr 26 20:48 /dev/sdb0
+brw-rw---- 1 root disk 179, 1 Apr 26 20:49 /dev/sdb1
+brw-rw---- 1 root disk 179, 2 Apr 26 20:49 /dev/sdb2
+</code></pre>
+<p>We can now mount the media to make any changes before we boot the filesystem (optional).</p>
+<pre><code># mkdir /media/b1
+# mkdir /media/b2
+# mount /dev/sdb1 /media/b1
+# mount /dev/sdb2 /media/b2
+</code></pre>
+<p>That&#8217;s it &#8212; sync and remove the microSD card.</p>
+<pre><code># sync
+# umount /dev/sdb1
+# umount /dev/sdb2
+</code></pre>
+<p><strong>NOTE:</strong> The beaglebone black will try to boot the internal Angstrom image by default. To boot from microSD, you&#8217;ll need to hold down the USER/BOOT button (located near the microSD end of the board) while powering-on the device.</p>
+<p>&nbsp;</p>
+<h6>Ubuntu Logon <code>ubuntu-armhf</code> as user <code>ubuntu</code> with a password of <code>ubuntu</code></h6>
+<pre><code>login as: ubuntu
+ubuntu@ubuntu-armhf's password: ubuntu
+</code></pre>
+<p>&nbsp;</p>
+<h6>Debian Wheezy Logon <code>debian-armhf</code> as user <code>debian</code> with a password of <code>debian</code></h6>
+<pre><code>login as: debian
+debian@debian-armhf's password: debian
+</code></pre>
+<p>&nbsp;</p>
+<h6>apt-get update</h6>
+<p>Once you have booted, execute <code>apt-get update</code> to update the package cache and then <code>apt-get upgrade</code> to refresh any updated binaries. It is good practice to execute <code>apt-get update</code> to refresh the package cache before trying to <code>apt-get install</code> packages.</p>
+<p>&nbsp;</p>
+<h6>Writing to Internal eMMC</h6>
+<p>The prebuilt image is sized to exactly 1832MB to allow it to fit into the BeagleBone Black&#8217;s on-board 2GB NAND storage. This size also allows it to fit on a wide variety of external microSD cards. The image can be resized to take advantage of additional space available on larger microSD cards.  To install the image to the internal eMMC, boot from the SD card. While booted from an external SD card, the internal eMMC will be available as <span style="color: #ff0000;"><code>/dev/mmcblk1</code></span>. To write the image to eMMC, execute: <code># xz -cd ubuntu-12.04-armhf-minfs-*.img.xz &gt; <span style="color: #ff0000;">/dev/mmcblk1</span></code> (ubuntu 12.04 in this example) as full root: <code>sudo su</code>.</p>
+<p>&nbsp;</p>
+<h6>Expanding the Image</h6>
+<p><em>To exapand the image to use the whole SD card (e.g. 4GB, 8GB, 16GB, etc), see:</em> <a href="/expanding-linux-partitions-part-2-of-2/" >Expanding Linux Partitions</a></p>
+<p>&nbsp;</p>
+                                    </div><!-- end of .post-entry -->
+
+<a class="anchor" id="comments"></a>
+				      
+			</div><!-- end of #post-245 -->       
+
+<div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+        this.page.url = "http://www.armhf.com/getting-started-with-ubuntu-img-file/";
+        this.page.identifier = "245 http://www.armhf.com/?page_id=245";
+    };
+    (function() {
+        var d = document, s = d.createElement('script');
+        s.src = '//armhf.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+      
+</div><!-- end of #content-full -->
+
+</div><!-- end of #wrapper -->
+</div><!-- end of #container -->
+
+<div id="footer" class="clearfix">
+    
+    <div id="footer-wrapper">
+        
+        <div class="grid col-940">
+
+            <div class="grid col-540">
+                            </div><!-- end of col-540 -->
+
+            <div class="grid col-380 fit">
+                <ul class="social-icons"></ul><!-- .social-icons -->            </div><!-- end of col-380 fit -->
+
+        </div><!-- end of col-940 -->
+        
+        <div class="grid col-300 copyright">
+            &copy; 2015<a href="/" title="armhf.com">
+                armhf.com           </a>
+        </div><!-- end of .copyright -->
+
+        <div class="grid col-300 scroll-top"><a href="#scroll-top" title="scroll to top">&uarr;</a></div>
+
+        <div class="grid col-300 fit powered">
+        </div><!-- end .powered -->
+
+    </div><!-- end #footer-wrapper -->
+
+    </div><!-- end #footer -->
+        <script type='text/javascript' src='/js/responsive-scripts.min.js?ver=1.2.6'></script>
+        <script type='text/javascript' src='/js/jquery.placeholder.min.js?ver=2.0.7'></script>
+</body>
+</html>
+
+

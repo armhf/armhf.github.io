@@ -1,0 +1,150 @@
+---
+title:  BeagleBone Black Serial UART Device Tree Overlays for Ubuntu and Debian Wheezy (tty01, tty02, tty04, tty05 .dtbo files) &#124; armhf.com
+---
+
+{% include head.html %}
+<div id="wrapper" class="clearfix">
+<div id="content" class="grid col-620">
+
+	<div class="breadcrumb-list" xmlns:v="http://rdf.data-vocabulary.org/#"><span class="breadcrumb" typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/">Home</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb" typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/posts/">HOWTO</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb-current">BeagleBone Black Serial UART Device Tree Overlays for Ubuntu and Debian Wheezy (tty01, tty02, tty04, tty05 .dtbo files)</span></div>
+	
+						<div id="post-718" class="post-718 post type-post status-publish format-standard hentry category-beaglebone-black category-device-tree category-howto tag-uart-serial-tty01-tty02-tty04-tty05">
+				
+	<h1 class="entry-title post-title">BeagleBone Black Serial UART Device Tree Overlays for Ubuntu and Debian Wheezy (tty01, tty02, tty04, tty05 .dtbo files)</h1>
+
+<div class="post-meta">
+	<span class="meta-prep meta-prep-author posted">Posted on </span><a href="/beaglebone-black-serial-uart-device-tree-overlays-for-ubuntu-and-debian-wheezy-tty01-tty02-tty04-tty05-dtbo-files/" title="BeagleBone Black Serial UART Device Tree Overlays for Ubuntu and Debian Wheezy (tty01, tty02, tty04, tty05 .dtbo files)" rel="bookmark"><time class="timestamp updated" datetime="2013-06-17T16:01:14+00:00">June 17, 2013</time></a><span class="byline"> by </span><span class="author vcard"><a class="url fn n" href="/author/johnc/" title="View all posts by John Clark">John Clark</a></span>
+			<span class="comments-link">
+		<span class="mdash">&mdash;</span>
+			<a href="/beaglebone-black-serial-uart-device-tree-overlays-for-ubuntu-and-debian-wheezy-tty01-tty02-tty04-tty05-dtbo-files/#comments"><span class="dsq-postid" data-dsqidentifier="718 http://www.armhf.com/?p=718">69 Comments &darr;</span></a>		</span>
+	</div><!-- end of .post-meta -->
+
+				<div class="post-entry">
+					<h5>BeagleBone Black UARTs</h5>
+<p>Unlike the BeagleBone White, the BeagleBone Black has no built-in serial to USB connection. This was one of the several cost saving measures taken in order to get the per-unit price down to $45 USD. The serial debug interface available at J1 is setup to allow the use of an <a href="http://www.ftdichip.com/Support/Documents/DataSheets/Cables/DS_TTL-232R_CABLES.pdf" onclick="_gaq.push(['_trackEvent','download','http://www.ftdichip.com/Support/Documents/DataSheets/Cables/DS_TTL-232R_CABLES.pdf']);" target="_blank">FTDI TTL-232R-3V3 3.3V serial to USB adapter</a> (Figure 1). An <a href="http://www.amazon.com/gp/product/B004LBXO2A" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'http://www.amazon.com/gp/product/B004LBXO2A', 'FTDI 3.3V knock-off']);" target="_blank">FTDI 3.3V knock-off</a> is available from Amazon, and works well for this application. The unit cost is $19 with free Prime shipping. Using the UARTs from another BeagleBone Black would have served the same purpose for only ~$20 more (Figure 2). Also note that, depending on the use case, the BeagleBone Black can also monitor its own serial debug port via one of the other UART ports.</p>
+<p><img alt="FTDI TTL-232R-3V3" src="/wp-content/uploads/2013/06/ftdi_serial_debug.jpg" width="600" height="399" /></p>
+<p>Figure 1 – BeagleBone Black with an FTDI TTL-232R-3V3 3.3V serial to USB attached to J1</p>
+<p>&nbsp;</p>
+<h5>Device Tree Overlay</h5>
+<p>The BeagleBone Black <code>am335x-boneblack.dtb</code> device file has only <code>/dev/ttyO0</code> active by default. To enable the other UARTs, we could either modify this file or create an overlay (.dtbo) file to adjust this behavior at runtime. I opted to go with the .dtbo overlay approach. The compiled files and their proper application are noted in the section below.</p>
+<p>Figure 2 shows the connection between the board doing the monitoring (top) using UART4, RX pin P9-11 and TX pin P9-13. It is connected to the board being monitored (bottom) via its UART0 serial debug port at J1. Note that J1 has six pins, but only three are active: pin 1: ground, RX pin 4 and TX pin 5. In this case the TX is tied to RX and vice-versa (TX:P9-13 to RX:J1-4 and RX:P9-11 to TX:J1-5).</p>
+<p><img alt="BeagleBone Serial Debug" src="/wp-content/uploads/2013/06/bbb_serial_debug.jpg" width="600" height="464" /></p>
+<p>Figure 2 – BeagleBone Black serial J1 attached to BeagleBone Black ttyO4</p>
+<p>Install and start minicom (<code>apt-get install minicom)</code> and launch it in setup mode (<code>minicom -s)</code>. Select <code>Serial port setup</code> and change the <code>Serial Device</code> to <code>/dev/ttyO4</code> (or whatever port you are using). Note that <code>Hardware Flow Control</code> is on by default and should be turned off.</p>
+<p>That&#8217;s it. You should now be seeing the login screen of the other BeagleBone Black:</p>
+<pre style="background: #000000;"><code><strong style="background-color: #000000; color: #00ff00;">Welcome to minicom 2.5
+
+OPTIONS: I18n 
+Compiled on Dec  7 2011, 12:04:29.
+Port /dev/ttyO4
+
+Press CTRL-A Z for help on special keys                      
+
+Ubuntu 12.04.2 LTS ubuntu-armhf ttyO0                        
+
+ubuntu-armhf login: 
+</strong></code></pre>
+<p>&nbsp;</p>
+<h5>Serial UART Device Tree Overlay Files</h5>
+<p>The most difficult part was figuring out how to build the device tree overlay files. To build the overlay, use the unmodified device tree compiler available in the Ubuntu packages (<code>apt-get install device-tree-compiler)</code>. Googling around, many examples are Ångström based that use /plugin/ and had a command-line option -@ that Ubuntu stock device tree compiler does support.  By decompiling an existing overlay file it is not too difficult to see how the parameters are defined within the file.  Below are overlay files for the various serial ports of the BeagleBone Black.</p>
+
+<p>Copy the following .dtbo overlay files to the <code>/lib/firmware</code> directory and apply them after each boot with the command: <code>echo ttyO1_armhf.com &gt; /sys/devices/bone_capemgr*/slots</code></p>
+<ul>
+<li><a style="font-size: 13px; line-height: 19px;" href="http://s3.armhf.com/boards/bbb/dt/ttyO1_armhf.com-00A0.dtbo" target="_blank">ttyO1_armhf.com-00A0.dtbo</a></li>
+<li><a style="font-size: 13px; line-height: 19px;" href="http://s3.armhf.com/boards/bbb/dt/ttyO2_armhf.com-00A0.dtbo" target="_blank">ttyO2_armhf.com-00A0.dtbo</a></li>
+<li><a style="font-size: 13px; line-height: 19px;" href="http://s3.armhf.com/boards/bbb/dt/ttyO4_armhf.com-00A0.dtbo" target="_blank">ttyO4_armhf.com-00A0.dtbo</a></li>
+<li><a style="font-size: 13px; line-height: 19px;" href="http://s3.armhf.com/boards/bbb/dt/ttyO5_armhf.com-00A0.dtbo" target="_blank">ttyO5_armhf.com-00A0.dtbo</a></li>
+</ul>
+<p>Note 1: ttyO3 does not have an RX pinout (it is tied to the TDA19988 HDMI chip)<br />
+Note 2: ttyO5 shares pins with the HDMI overlay – both cannot be active at the same time<br />
+Note 3: ttyO0 is available on J1 and does not require an overlay</p>
+<p>After applying all four of the .dtbo files, you should see something like:</p>
+<pre style="background: #000000;"><code><strong style="background-color: #000000; color: #00ff00;">root@ubuntu-armhf:/# ll /dev/ttyO*
+crw-rw---- 1 root tty     249, 0 Jan  1  2000 /dev/ttyO0
+crw-rw---- 1 root dialout 249, 1 Jun 17 18:16 /dev/ttyO1
+crw-rw---- 1 root dialout 249, 2 Jun 17 18:16 /dev/ttyO2
+crw-rw---- 1 root dialout 249, 4 Jun 17 18:16 /dev/ttyO4
+crw-rw---- 1 root dialout 249, 5 Jun 17 18:16 /dev/ttyO5
+root@ubuntu-armhf:/# 
+</strong></code></pre>
+<p>&nbsp;</p>
+<h5>Serial UART Address and Configuration</h5>
+<p>Below are the notes from cross-referencing the <a href="https://github.com/CircuitCo/BeagleBone-Black/blob/master/BBB_SRM.pdf?raw=true" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'https://github.com/CircuitCo/BeagleBone-Black/blob/master/BBB_SRM.pdf?raw=true', 'BeagleBone Black System Reference Manual']);" target="_blank">BeagleBone Black System Reference Manual</a>, the <a href="http://www.ti.com/lit/ds/sprs717f/sprs717f.pdf" onclick="_gaq.push(['_trackEvent','download','http://www.ti.com/lit/ds/sprs717f/sprs717f.pdf']);" target="_blank">TI AM335x Datasheet</a>, and the <a href="http://www.ti.com/lit/ug/spruh73i/spruh73i.pdf" onclick="_gaq.push(['_trackEvent','download','http://www.ti.com/lit/ug/spruh73i/spruh73i.pdf']);" target="_blank">TI AM335x Technical Reference Manual</a>. Take some time to review these manuals for yourself – several websites are out there with inaccurate information and transcription errors, so it pays to double-check. It is always more frustrating and challenging when multiple issues exist in code; this is one easy thing to get right. Also, don&#8217;t forget to examine the kernel log <code>dmesg</code> after trying to load an overlay file – many times the kernel will tell you exactly what is wrong.</p>
+<pre><code><strong>
+UART0: 0x44E0_9000 (/dev/ttyO0)</strong>
+   TX: 0x174 0x00 (j1-p5)  (ZCZ-E16 UART0_TXD mode:0 [datasheet]) = (conf_uart0_txd 974h [TRM p1126] = 0x0174)
+   RX: 0x170 0x20 (j1-p4)  (ZCZ-E15 UART0_RXD mode:0 [datasheet]) = (conf_uart0_rxd 970h [TRM p1126] = 0x0170)
+
+<strong>UART1: 0x4802_2000 (/dev/ttyO1)</strong>
+   TX: 0x184 0x00  (p9-24) (ZCZ-D15 UART1_TXD mode:0 [datasheet]) = (conf_uart1_txd 984h [TRM p1126] = 0x0184)
+   RX: 0x180 0x20  (p9-26) (ZCZ-D16 UART1_RXD mode:0 [datasheet]) = (conf_uart1_rxd 980h [TRM p1126] = 0x0180)
+
+<strong>UART2: 0x4802_4000 (/dev/ttyO2)</strong>
+   TX: 0x154 0x01  (p9-21) (ZCZ-B17 SPI0_D0   mode:1 [datasheet]) = (conf_spi0_d0   954h [TRM p1126] = 0x0154)
+   RX: 0x150 0x21  (p9-22) (ZCZ-A17 SPI0_SCLK mode:1 [datasheet]) = (conf_spi0_sclk 950h [TRM p1126] = 0x0150)
+
+<strong>UART3: 0x481A_6000 (/dev/ttyO3)</strong>
+   TX: 0x164 0x01  (p9-42)       (ZCZ-C18 ECAP0_IN_PWM0_OUT mode:1 [datasheet]) = (conf_ecap0_in_pwm0_out 964h [TRM p1126] = 0x0164)
+   RX: 0x188 0x21  (no breakout) (ZCZ-C17 I2C0_SDA          mode:1 [datasheet]) = (conf_i2c0_sda          988h [TRM p1126] = 0x0188) I2C0_SDA is tied to TDA19988
+
+<strong>UART4: 0x481A_8000 (/dev/ttyO4)</strong>
+   TX: 0x074 0x06  (p9-13) (ZCZ-U17 GPMC_WPn   mode:6 [datasheet]) = (conf_gpmc_wpn   874h [TRM p1124] = 0x0074)
+   RX: 0x070 0x26  (p9-11) (ZCZ-T17 GPMC_WAIT0 mode:6 [datasheet]) = (conf_gpmc_wait0 870h [TRM p1124] = 0x0070)
+
+<strong>UART5: 0x481A_A000 (/dev/ttyO5)</strong>
+   TX: 0x0C0 0x04  (p8-37) (ZCZ-U1 LCD_DATA8 mode:4 [datasheet]) = (conf_lcd_data8 8C0h [TRM p1125] = 0x00C0)
+   RX: 0x0C4 0x24  (p8-38) (ZCZ-U2 LCD_DATA9 mode:4 [datasheet]) = (conf_lcd_data9 8C4h [TRM p1125] = 0x00C4)
+</code></pre>
+
+					
+									</div><!-- end of .post-entry -->
+
+				<div class="navigation">
+					<div class="previous">&#8249; <a href="/using-beaglebone-black-gpios/" rel="prev">Using BeagleBone Black GPIOs</a></div>
+					<div class="next"></div>
+				</div><!-- end of .navigation -->
+
+				
+
+	<div class="post-data">
+		Posted in <a href="/category/beaglebone-black/">BeagleBone Black</a>, <a href="/category/device-tree/">Device Tree</a>, <a href="/category/howto/">HowTo</a>		Tagged with: <a href="/tag/uart-serial-tty01-tty02-tty04-tty05/" rel="tag">uart serial tty01 tty02 tty04 tty05</a><br />	</div><!-- end of .post-data -->
+
+
+<a class="anchor" id="comments"></a>
+							</div><!-- end of #post-718 -->
+			
+<div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+        this.page.url = "http://www.armhf.com/beaglebone-black-serial-uart-device-tree-overlays-for-ubuntu-and-debian-wheezy-tty01-tty02-tty04-tty05-dtbo-files/";
+        this.page.identifier = "718 http://www.armhf.com/?p=718";
+    };
+    (function() {
+        var d = document, s = d.createElement('script');
+        s.src = '//armhf.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+		
+</div><!-- end of #content -->
+	<div id="widgets" class="grid col-300 fit">
+		
+					<div class="widget-wrapper">
+
+				<div class="widget-title"><h3>In Archive</h3></div>
+				<ul>
+						<li><a href='http://www.armhf.com/2013/06/'>June 2013</a></li>
+	<li><a href='http://www.armhf.com/2013/05/'>May 2013</a></li>
+	<li><a href='http://www.armhf.com/2013/04/'>April 2013</a></li>
+				</ul>
+
+			</div><!-- end of .widget-wrapper -->
+		
+			</div><!-- end of #widgets -->
+</div><!-- end of #wrapper -->
+</div><!-- end of #container -->
+
+{% include foot.html %}
+

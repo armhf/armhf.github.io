@@ -1,0 +1,167 @@
+---
+title:  Using BeagleBone Black GPIOs &#124; armhf.com
+---
+
+{% include head.html %}
+<div id="wrapper" class="clearfix">
+<div id="content-full" class="grid col-940">
+
+	<div class="breadcrumb-list" xmlns:v="http://rdf.data-vocabulary.org/#"><span class="breadcrumb" typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/">Home</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb" typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/category/beaglebone-black/">BeagleBone Black</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb-current">Using BeagleBone Black GPIOs</span></div>
+	
+		
+						<div id="post-605" class="post-605 post type-post status-publish format-standard hentry category-beaglebone-black category-howto">
+				
+				
+	<h1 class="entry-title post-title">Using BeagleBone Black GPIOs</h1>
+
+<div class="post-meta">
+	<span class="meta-prep meta-prep-author posted">Posted on </span><a href="/using-beaglebone-black-gpios/" title="Using BeagleBone Black GPIOs" rel="bookmark"><time class="timestamp updated" datetime="2013-05-26T14:14:12+00:00">May 26, 2013</time></a><span class="byline"> by </span><span class="author vcard"><a class="url fn n" href="/author/johnc/" title="View all posts by John Clark">John Clark</a></span>
+			<span class="comments-link">
+		<span class="mdash">&mdash;</span>
+			<a href="/using-beaglebone-black-gpios/#comments"><span class="dsq-postid" data-dsqidentifier="605 /?p=605">50 Comments &darr;</span></a>		</span>
+	</div><!-- end of .post-meta -->
+
+				<div class="post-entry">
+					<p>To control digital input / outputs for the BeagleBone Black, you can use the facilities exposed by the kernel in the <code>/sys/class/gpio</code> directory. Note that the BeagleBone White pinouts are different from the BeagleBone Black. Also note that the GPIOs available on the BBW have changed between revisions, so be certain to get the proper technical reference manual for your actual board revision.</p>
+<p>After boot, nothing is exported for use, but we do see the four GPIO controllers (<code>gpio0</code>, <code>gpio1</code>, <code>gpio2</code>, and <code>gpio3</code>):</p>
+<pre><code># ls -al /sys/class/gpio
+total 0
+drwxr-xr-x  2 root root    0 May 26 15:40 .
+drwxr-xr-x 45 root root    0 Jan  1  2000 ..
+--w-------  1 root root 4096 May 26 15:48 export
+lrwxrwxrwx  1 root root    0 May 26 15:45 gpiochip0 -&gt; ../../devices/virtual/gpio/gpiochip0
+lrwxrwxrwx  1 root root    0 May 26 15:45 gpiochip32 -&gt; ../../devices/virtual/gpio/gpiochip32
+lrwxrwxrwx  1 root root    0 May 26 15:45 gpiochip64 -&gt; ../../devices/virtual/gpio/gpiochip64
+lrwxrwxrwx  1 root root    0 May 26 15:45 gpiochip96 -&gt; ../../devices/virtual/gpio/gpiochip96
+--w-------  1 root root 4096 May 26 15:45 unexport
+</code></pre>
+<p>Note that each GPIO controller is offset by 32 from the previous (0, 32, 64, 96) &#8212; more on this later.</p>
+<p>Not all GPIO pins are available by default. A lot of frustration may come from not knowing this &#8212; sometimes when it appears that all should be working, it does not. The microcontroller needs to be reconfigured to enable some of the pin modes. To understand what may be available, you need to study table 10 on page 70 for the P8 header and table 11 on page 72 for the P9 header in the <a href="https://github.com/CircuitCo/BeagleBone-Black/blob/master/BBB_SRM.pdf?raw=true" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'https://github.com/CircuitCo/BeagleBone-Black/blob/master/BBB_SRM.pdf?raw=true', 'BeagleBone Black System Reference Manual']);" target="_blank">BeagleBone Black System Reference Manual</a>. Pay close attention to which header is P8 and which is P9 (page 68) because they feel backwards to me.</p>
+<p>In this example, I will export P9 header GPIO pins 12, 14, 15, 16. Referencing page 72 mode 7 column, it shows pin 12 to be <code>gpio1[28]</code>, pin 14 to be <code>gpio1[18]</code>, pin 15 to be <code>gpio1[16]</code>, pin 16 to be <code>gpio1[19]</code>. All of these pins are on the <code>gpio1</code> controller (<code>gpiochip32</code>). To get to the GPIO number that should be exported from the kernel, we must add on 32 to each GPIO (64 for <code>gpio2</code>, and 96 for <code>gpio3</code>). Therefore <code>gpio1[28]</code> = 32 + 28 = 60. I will just do all the math here and we will refer to them by the kernel nomenclature and stop with the <code>gpio1[x]</code> business as it gets confusing.</p>
+<pre><code>pin 12 --&gt; gpio60
+pin 14 --&gt; gpio50
+pin 15 --&gt; gpio48
+pin 16 --&gt; gpio51
+</code></pre>
+<p>Now that we have a relationship between the P9 header physical pins and what the kernel is calling them, we can begin configuration. To make this example easy to follow, I am just going to use bash scripts, but all of the same principles apply to the file manipulation APIs in your favorite language.</p>
+<p>In this example, we will be configuring all four pins to be digital outputs. To do so, we need to copy the gpio number we want to export into the kernel gpiolib <code>/sys/class/gpio/export</code> file.</p>
+<pre><code>echo 48 &gt; /sys/class/gpio/export
+echo 50 &gt; /sys/class/gpio/export
+echo 51 &gt; /sys/class/gpio/export
+echo 60 &gt; /sys/class/gpio/export
+</code></pre>
+<p>Afterward we can see there are four new subdirectories for each of the gpios:</p>
+<pre><code># ls -al /sys/class/gpio
+total 0
+drwxr-xr-x 2 root root    0 May 26 15:40 ./
+drwxr-xr-x 45 root root   0 Jan  1  2000 ../
+--w------- 1 root root 4096 May 26 16:25 export
+lrwxrwxrwx 1 root root    0 May 26 16:25 gpio48 -&gt; ../../devices/virtual/gpio/gpio48/
+lrwxrwxrwx 1 root root    0 May 26 16:25 gpio50 -&gt; ../../devices/virtual/gpio/gpio50/
+lrwxrwxrwx 1 root root    0 May 26 16:25 gpio51 -&gt; ../../devices/virtual/gpio/gpio51/
+lrwxrwxrwx 1 root root    0 May 26 16:25 gpio60 -&gt; ../../devices/virtual/gpio/gpio60/
+lrwxrwxrwx 1 root root    0 May 26 15:45 gpiochip0 -&gt; ../../devices/virtual/gpio/gpiochip0/
+lrwxrwxrwx 1 root root    0 May 26 15:45 gpiochip32 -&gt; ../../devices/virtual/gpio/gpiochip32/
+lrwxrwxrwx 1 root root    0 May 26 15:45 gpiochip64 -&gt; ../../devices/virtual/gpio/gpiochip64/
+lrwxrwxrwx 1 root root    0 May 26 15:45 gpiochip96 -&gt; ../../devices/virtual/gpio/gpiochip96/
+--w------- 1 root root 4096 May 26 15:45 unexport
+</code></pre>
+<p>And the contents of one of the gpio subdirectories:</p>
+<pre><code># ls -alH /sys/class/gpio/gpio48
+total 0
+drwxr-xr-x  3 root root    0 May 26 16:25 .
+drwxr-xr-x 10 root root    0 May 26 15:45 ..
+-rw-r--r--  1 root root 4096 May 26 16:29 active_low
+-rw-r--r--  1 root root 4096 May 26 16:29 direction
+-rw-r--r--  1 root root 4096 May 26 16:29 edge
+drwxr-xr-x  2 root root    0 May 26 16:29 power
+lrwxrwxrwx  1 root root    0 May 26 16:25 subsystem -&gt; ../../../../class/gpio
+-rw-r--r--  1 root root 4096 May 26 16:25 uevent
+-rw-r--r--  1 root root 4096 May 26 16:29 value
+</code></pre>
+<p>There are several configuration options available to each gpio. I suggest you read the <a href="https://www.kernel.org/doc/Documentation/gpio/gpio.txt" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'https://www.kernel.org/doc/Documentation/gpio/gpio.txt', 'Linux GPIO Interfaces manual']);" target="_blank">Linux GPIO Interfaces manual</a> for all of the details. I am only covering the basics here, and the <a href="https://www.kernel.org/doc/Documentation/gpio/gpio.txt" onclick="_gaq.push(['_trackEvent', 'outbound-article', 'https://www.kernel.org/doc/Documentation/gpio/gpio.txt', 'Linux GPIO Interfaces manual']);" target="_blank">Linux GPIO Interfaces manual</a> is a very important read to understanding Linux gpio control.</p>
+<p>Next we must specify if the exported gpio is input or output. It does not make sense to configure anything else ahead of this and as far as I know, the kernel doesn&#8217;t let you do anything else with it until you set the gpio as input or output.</p>
+<p>To set a gpio as output, we set its <code>direction</code> as <code>in</code> or <code>out</code>. For outputs there is an alternative nomenclature where output direction can be set instead as <code>high</code> or <code>low</code> to help with glitch free operation. I&#8217;ll use this nomenclature:</p>
+<pre><code>echo high &gt; /sys/class/gpio/gpio48/direction
+echo high &gt; /sys/class/gpio/gpio50/direction
+echo high &gt; /sys/class/gpio/gpio51/direction
+echo high &gt; /sys/class/gpio/gpio60/direction
+</code></pre>
+<p>Pins 12, 14, 15, 16 are now configured as outputs and are currently high &#8212; these pins will now be reading 3.3v. <span style="text-decoration: underline;">Do not use 5v TTL logic parts or you will damage the board.</span></p>
+<p>Finally, we will set the pins low which will depower them:</p>
+<pre><code>echo 0 &gt; /sys/class/gpio/gpio48/value
+echo 0 &gt; /sys/class/gpio/gpio50/value
+echo 0 &gt; /sys/class/gpio/gpio51/value
+echo 0 &gt; /sys/class/gpio/gpio60/value
+</code></pre>
+<p>Putting this all together, this script will configure and run a binary counter that will overflow and start at zero again. It is kind of cool to watch if you hook relays up to the board.</p>
+<pre><code>#!/bin/bash -e
+
+if [ ! -d /sys/class/gpio/gpio48 ]; then echo 48 &gt; /sys/class/gpio/export; fi
+if [ ! -d /sys/class/gpio/gpio50 ]; then echo 50 &gt; /sys/class/gpio/export; fi
+if [ ! -d /sys/class/gpio/gpio51 ]; then echo 51 &gt; /sys/class/gpio/export; fi
+if [ ! -d /sys/class/gpio/gpio60 ]; then echo 60 &gt; /sys/class/gpio/export; fi
+
+echo low &gt; /sys/class/gpio/gpio48/direction
+echo low &gt; /sys/class/gpio/gpio50/direction
+echo low &gt; /sys/class/gpio/gpio51/direction
+echo low &gt; /sys/class/gpio/gpio60/direction
+
+for (( i=0 ; ; ++i ))
+do
+   if (( i &gt; 0x0f )); then
+      i=0
+      printf '\n[press  + c to stop]\n\n'
+   fi
+
+   bit0=$(( (i &amp; 0x01) &gt; 0 ))
+   bit1=$(( (i &amp; 0x02) &gt; 0 ))
+   bit2=$(( (i &amp; 0x04) &gt; 0 ))
+   bit3=$(( (i &amp; 0x08) &gt; 0 ))
+   echo $bit3 $bit2 $bit1 $bit0
+
+   echo $bit0 &gt; /sys/class/gpio/gpio60/value
+   echo $bit1 &gt; /sys/class/gpio/gpio50/value
+   echo $bit2 &gt; /sys/class/gpio/gpio48/value
+   echo $bit3 &gt; /sys/class/gpio/gpio51/value
+
+   sleep .2
+done
+</code></pre>
+<p>&nbsp;</p>
+<h5>The Script in Action</h5>
+<p> <iframe src="http://www.youtube.com/embed/OGYHBOmyvMc" height="315" width="560" allowfullscreen="" frameborder="0"></iframe></p>
+									</div><!-- end of .post-entry -->
+
+				<div class="navigation">
+					<div class="previous">&#8249; <a href="/expanding-linux-partitions-part-2-of-2/" rel="prev">Expanding Linux Partitions: Part 2 of 2</a></div>
+					<div class="next"><a href="/beaglebone-black-serial-uart-device-tree-overlays-for-ubuntu-and-debian-wheezy-tty01-tty02-tty04-tty05-dtbo-files/" rel="next">BeagleBone Black Serial UART Device Tree Overlays for Ubuntu and Debian Wheezy (tty01, tty02, tty04, tty05 .dtbo files)</a> &#8250;</div>
+				</div><!-- end of .navigation -->
+
+	<div class="post-data">
+		Posted in <a href="/category/beaglebone-black/">BeagleBone Black</a>, <a href="/category/emmc/">eMMC</a>, <a href="/category/howto/">HowTo</a>, <a href="/category/partitioning/">Partitioning</a>			</div><!-- end of .post-data -->
+
+<a class="anchor" id="comments"></a>
+							</div><!-- end of #post-605 -->
+			
+<div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+        this.page.url = "http://www.armhf.com/using-beaglebone-black-gpios/";
+        this.page.identifier = "605 http://www.armhf.com/?p=605";
+    };
+    (function() {
+        var d = document, s = d.createElement('script');
+        s.src = '//armhf.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+
+</div><!-- end of #content -->
+</div><!-- end of #wrapper -->
+</div><!-- end of #container -->
+
+{% include foot.html %}
+

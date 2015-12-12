@@ -1,0 +1,75 @@
+---
+title:  BeagleBone Black microSD Card Installation &#124; armhf.com
+---
+
+{% include head.html %}
+<div id="wrapper" class="clearfix">
+<div id="content-full" class="grid col-940">
+
+			<div class="breadcrumb-list" xmlns:v="http://rdf.data-vocabulary.org/#"><span class="breadcrumb" typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/">Home</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb" typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/boards/">Boards</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb" typeof="v:Breadcrumb"><a rel="v:url" property="v:title" href="/boards/beaglebone-black/">BeagleBone Black</a></span> <span class="chevron">&#8250;</span> <span class="breadcrumb-current">BeagleBone Black microSD Card Installation</span></div>
+						<div id="post-985" class="post-985 page type-page status-publish hentry">
+				
+				
+	<h1 class="entry-title post-title">BeagleBone Black microSD Card Installation</h1>
+
+
+				<div class="post-entry">
+					<ol>
+<li>Insert the microSD Card into your computer and observe which device it registers as by typing <code>ls /dev/sd*</code>. If you are uncertain, remove the microSD Card and the entry should go away. Once you know which device your microSD Card is, follow the instructions below replacing <code>/dev/sdX</code> with the name of the microSD Card in your system.
+<li>Begin partitioning the microSD Card by typing <code>fdisk /dev/sdX</code>
+<ol style="list-style-type: lower-alpha;">
+<li>Initialize a new partition table by selecting <b>o</b>, then verify the partition table is empty by selecting <b>p</b>.</li>
+<li>Create a boot partition by selecting <b>n</b> for &#8216;new&#8217;, then <b>p</b> for &#8216;primary&#8217;, and <b>1</b> to specify the first partition. Press <b>enter</b> to accept the default first sector and specify <b>4095</b> for the last sector.</li>
+<li>Change the partition type to FAT16 by selecting <b>t</b> for &#8216;type&#8217; and <b>e</b> for &#8216;W95 FAT16 (LBA)&#8217;.</li>
+<li>Set the partition bootable by selecting <b>a</b> then <b>1</b>.</li>
+<li>Next, create the data partition for the root filesystem by selecting <b>n</b> for &#8216;new&#8217;, then <b>p</b> for &#8216;primary&#8217;, and <b>2</b> to specify the second partition. Accept the default values for the first and last sectors by pressing <b>enter</b> twice.</li>
+<li>Press <b>p</b> to &#8216;print&#8217; the partition table. It should look similar to the one below.</li>
+<pre style="padding-left:1em; width:85%; background: #000000; color: #00ff00;"><code style="font-size: 12px; background: #000000; color: #00ff00;">Disk /dev/sdb: 7948 MB, 7948206080 bytes
+255 heads, 63 sectors/track, 966 cylinders, total 15523840 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk identifier: 0xafb3f87b
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1   *        2048        4095        1024    e  W95 FAT16 (LBA)
+/dev/sdb2            4096    15523839     7759872   83  Linux</code></pre>
+<li>Finally, commit the changes by selecting <b>w</b> to &#8216;write&#8217; the partition table and exit fdisk.</li>
+</ol>
+</li>
+<li>Format the Partitions
+<ol style="list-style-type: lower-alpha;">
+<li>Format partition 1 as FAT by typing <code>mkfs.vfat /dev/sdX1</code></li>
+<li>Format partition 2 as ext4 by typing <code>mkfs.ext4 /dev/sdX2</code></li>
+</ol>
+</li>
+<li>Install u-boot to the microSD Card</li>
+<pre><code>wget http://s3.armhf.com/dist/bone/bone-uboot.tar.xz
+mkdir boot
+mount /dev/sdX1 boot
+tar xJvf bone-uboot.tar.xz -C boot
+umount boot</code></pre>
+<li>Install the desired root filesystem to the microSD Card (ubuntu trusty in this example)</li>
+<pre><code>wget http://s3.armhf.com/dist/bone/ubuntu-trusty-14.04-rootfs-3.14.4.1-bone-armhf.com.tar.xz
+mkdir rootfs
+mount /dev/sdX2 rootfs
+tar xJvf ubuntu-trusty-14.04-rootfs-3.14.4.1-bone-armhf.com.tar.xz -C rootfs
+umount rootfs</code></pre>
+<li>The microSD Card is now ready to boot. Note that for ubuntu installations, the login userid is <b>ubuntu</b> and the password is <b>ubuntu</b>. Likewise for debian installations, the login userid is <b>debian</b> and the password is <b>debian</b>.</li>
+</ol>
+<p><b>Tip:</b> The package cache has been flushed to reduce the size of the images. Run <code>apt-get update</code> after boot to update the package cache, then run <code>apt-get upgrade</code> to ensure the latest updates are installed.</p>
+									</div>
+				<!-- end of .post-entry -->
+
+				
+
+<div class="post-edit"></div>
+							</div><!-- end of #post-985 -->
+		
+</div><!-- end of #content-full -->
+
+</div><!-- end of #wrapper -->
+</div><!-- end of #container -->
+
+{% include foot.html %}
+
